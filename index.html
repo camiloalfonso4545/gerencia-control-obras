@@ -1,0 +1,539 @@
+<title>La ruta del semestre</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Gerencia y Control de Obras · UPTC 2026-II. Mapa navegable del semestre: dieciséis clases sobre una vía, con resumen, importancia y material de apoyo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Onest:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,900&display=swap">
+
+<style>
+/* Paleta de tierra y oliva. El asfalto real va entre el fresco #363634 y el
+   envejecido #706E6A: se usa un intermedio de vía con algunos años. */
+:root{
+  --paper:#E5DDD1; --paper-soft:#DCD3C3;
+  --accent:#7B5B3E; --accent-deep:#6A4E35;
+  --line:#CFC4B2; --text:#2E3226; --text-soft:#5E6350;
+  --card-bg:#F4EFE6; --card-border:#D3C8B6;
+  --asphalt:#4A4844; --asphalt-2:#3E3C39; --shoulder:#A6906C; --marking:#EDE6DA;
+  --stop:#9C4A32; --warn:#C68A3E; --go:#67704F; --info:#4A6670;
+  --sign-ink:#2E3226; --sign-face:#F1EBE0;
+  --shadow:0 18px 44px -26px rgba(46,50,38,.45);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#23261D; --paper-soft:#2C3025;
+    --accent:#BC9165; --accent-deep:#CFA87C;
+    --line:#3C4133; --text:#E8E0D6; --text-soft:#A6906C;
+    --card-bg:#2B2F24; --card-border:#3E432F;
+    --asphalt:#514F4A; --asphalt-2:#43413D; --shoulder:#6E6046; --marking:#E8E0D6;
+    --stop:#C4674C; --warn:#D8A054; --go:#8B9670; --info:#6E8F9B;
+    --sign-ink:#20231A; --sign-face:#E8E0D6;
+    --shadow:0 18px 44px -26px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#23261D; --paper-soft:#2C3025;
+  --accent:#BC9165; --accent-deep:#CFA87C;
+  --line:#3C4133; --text:#E8E0D6; --text-soft:#A6906C;
+  --card-bg:#2B2F24; --card-border:#3E432F;
+  --asphalt:#514F4A; --asphalt-2:#43413D; --shoulder:#6E6046; --marking:#E8E0D6;
+  --stop:#C4674C; --warn:#D8A054; --go:#8B9670; --info:#6E8F9B;
+  --sign-ink:#20231A; --sign-face:#E8E0D6;
+  --shadow:0 18px 44px -26px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--paper); color:var(--text);
+  font-family:Onest, system-ui, -apple-system, Segoe UI, sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.mono{font-family:'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums}
+
+/* ------------------------------------------------------------ barra */
+.topbar{
+  flex:0 0 auto; display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  padding:13px 22px; border-bottom:1px solid var(--line); background:var(--paper);
+  position:relative; z-index:20;
+}
+.brand{display:flex; flex-direction:column; gap:1px; margin-right:auto}
+.brand .k{
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.15em;
+  text-transform:uppercase; color:var(--accent-deep);
+}
+.brand h1{
+  font-family:'Source Serif 4',Georgia,serif; font-weight:900; font-size:20px;
+  margin:0; letter-spacing:-.012em; line-height:1.1;
+}
+.seg{display:flex; border:1px solid var(--card-border); border-radius:99px; overflow:hidden; background:var(--card-bg)}
+.seg button{
+  border:0; background:transparent; cursor:pointer; color:var(--text-soft);
+  font-family:'IBM Plex Mono',monospace; font-size:.72rem; letter-spacing:.08em;
+  text-transform:uppercase; padding:8px 15px; transition:background .15s, color .15s;
+}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--sign-face)}
+.seg button:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.nav{display:flex; align-items:center; gap:9px}
+.btn{
+  border:1px solid var(--card-border); background:var(--card-bg); color:var(--text);
+  border-radius:9px; cursor:pointer; padding:7px 12px; font-size:14px;
+  font-family:'IBM Plex Mono',monospace; transition:border-color .15s, background .15s;
+}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.4; cursor:default}
+.btn:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.paso{
+  font-family:'IBM Plex Mono',monospace; font-size:.76rem; color:var(--text-soft);
+  min-width:112px; text-align:center; letter-spacing:.05em;
+}
+.hint{font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--text-soft); letter-spacing:.06em}
+
+/* ------------------------------------------------------------ lienzo */
+#lienzo{
+  flex:1 1 auto; position:relative; overflow:hidden; cursor:grab;
+  /* arrastrar el lienzo no debe seleccionar el texto de las tarjetas */
+  user-select:none; -webkit-user-select:none;
+  background:
+    radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/34px 34px,
+    var(--paper);
+  touch-action:none;
+}
+#lienzo.arrastrando{cursor:grabbing}
+#lienzo .nodo, #lienzo .globo{cursor:inherit}
+#lienzo a{cursor:pointer; user-select:text; -webkit-user-select:text}
+#lienzo svg, #lienzo img{-webkit-user-drag:none; user-drag:none}
+#mundo{position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform}
+#trazo{position:absolute; top:0; left:0; pointer-events:none}
+
+.nodo{position:absolute; width:300px; transform:translate(-50%,-50%)}
+.nodo .tarjeta{
+  background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:14px;
+  padding:15px 17px 14px; box-shadow:var(--shadow);
+}
+.nodo.now .tarjeta{border-color:var(--accent); border-width:2.5px}
+.nodo .cab{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:5px}
+.nodo .cl{
+  font-family:'IBM Plex Mono',monospace; font-size:.7rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--accent-deep); font-weight:600;
+}
+.nodo .fe{font-family:'IBM Plex Mono',monospace; font-size:.7rem; color:var(--text-soft)}
+.nodo h3{
+  font-family:'Source Serif 4',Georgia,serif; font-weight:900; font-size:19px;
+  line-height:1.16; margin:0; letter-spacing:-.01em; text-wrap:balance;
+}
+.nodo .chips{display:flex; flex-wrap:wrap; gap:5px; margin-top:11px}
+.chip{
+  font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase;
+  padding:3px 8px; border-radius:99px; border:1px solid var(--card-border); color:var(--text-soft);
+}
+.chip.ent{color:var(--go); border-color:color-mix(in srgb,var(--go) 42%,transparent)}
+.chip.par{color:var(--stop); border-color:color-mix(in srgb,var(--stop) 42%,transparent)}
+.chip.hoy{color:var(--accent-deep); border-color:var(--accent); background:var(--paper-soft); font-weight:600}
+
+/* globos */
+.globo{
+  position:absolute; width:260px; transform:translate(-50%,-50%);
+  background:var(--card-bg); border:1px solid var(--card-border); border-radius:13px;
+  padding:12px 14px; box-shadow:var(--shadow);
+}
+.globo.tema{background:color-mix(in srgb,var(--accent) 12%, var(--card-bg)); border-color:color-mix(in srgb,var(--accent) 34%,transparent)}
+.globo.imp{background:color-mix(in srgb,var(--warn) 13%, var(--card-bg)); border-color:color-mix(in srgb,var(--warn) 36%,transparent)}
+.globo.mat{background:color-mix(in srgb,var(--info) 11%, var(--card-bg)); border-color:color-mix(in srgb,var(--info) 34%,transparent)}
+.globo .t{
+  font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--text-soft); margin-bottom:6px; font-weight:600;
+}
+.globo p{margin:0; font-size:13.5px; line-height:1.5; color:var(--text-soft)}
+.globo p b{color:var(--text); font-weight:600}
+.globo ul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:6px}
+.globo li{position:relative; padding-left:13px; font-size:13.5px; line-height:1.45; color:var(--text-soft)}
+.globo li::before{content:""; position:absolute; left:0; top:.58em; width:4px; height:4px; border-radius:1px; background:var(--accent)}
+.globo li b{color:var(--text); font-weight:600}
+.rec{display:flex; flex-direction:column; gap:6px}
+.rec a, .rec span{
+  display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:8px;
+  border:1px solid var(--card-border); background:var(--card-bg);
+  font-size:13px; color:var(--text); text-decoration:none;
+}
+.rec a:hover{border-color:var(--info)}
+.rec a:focus-visible{outline:2px solid var(--info); outline-offset:2px}
+.rec .ext{
+  margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:.6rem;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--info);
+}
+.rec span .ext{color:var(--text-soft)}
+
+/* enfoque en modo guiado */
+.nodo, .globo{transition:opacity .45s ease}
+#lienzo.guiado .nodo:not(.foco), #lienzo.guiado .globo:not(.foco){opacity:.26}
+
+/* ------------------------------------------------------------ pie */
+.pie{
+  flex:0 0 auto; display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+  padding:9px 22px; border-top:1px solid var(--line); background:var(--paper);
+  font-family:'IBM Plex Mono',monospace; font-size:.68rem; color:var(--text-soft);
+  letter-spacing:.05em; position:relative; z-index:20;
+}
+.pie .leg{display:flex; align-items:center; gap:7px}
+.pie .leg svg{flex:0 0 auto}
+
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+@media (max-width:720px){
+  .brand h1{font-size:17px}
+  .hint{display:none}
+  .topbar{gap:12px; padding:11px 14px}
+}
+</style>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="k">Gerencia y Control de Obras · UPTC 2026-II</span>
+    <h1>La ruta del semestre</h1>
+  </div>
+
+  <div class="seg" role="group" aria-label="Modo de navegación">
+    <button id="m-libre" aria-pressed="true">Vista libre</button>
+    <button id="m-guiado" aria-pressed="false">Recorrido guiado</button>
+  </div>
+
+  <div class="nav">
+    <button class="btn" id="ant" aria-label="Clase anterior">←</button>
+    <span class="paso mono" id="paso">Clase 1 de 16</span>
+    <button class="btn" id="sig" aria-label="Clase siguiente">→</button>
+    <button class="btn" id="todo" title="Ver toda la ruta">Ajustar</button>
+  </div>
+
+  <span class="hint">Arrastre para moverse · rueda para acercar</span>
+</div>
+
+<div id="lienzo">
+  <div id="mundo">
+    <svg id="trazo" aria-hidden="true"></svg>
+  </div>
+</div>
+
+<div class="pie">
+  <span>Texto base · <b style="color:var(--text)">Guía del PMBOK® 8.ª ed. (PMI, 2025)</b></span>
+  <span>Las diapositivas de todas las clases se entregan <b style="color:var(--text)">en la última sesión</b></span>
+  <span class="leg"><svg width="20" height="20" viewBox="-34 -34 68 68"><circle r="26" fill="var(--go)" stroke="var(--sign-face)" stroke-width="4"/><path d="M -8 -10 L 12 0 L -8 10 Z" fill="var(--sign-face)"/></svg> Inicio</span>
+  <span class="leg"><svg width="20" height="20" viewBox="-34 -34 68 68"><rect x="-25" y="-25" width="50" height="50" rx="6" transform="rotate(45)" fill="var(--warn)" stroke="var(--sign-ink)" stroke-width="3"/></svg> Curva peligrosa</span>
+  <span class="leg"><svg width="20" height="20" viewBox="-34 -34 68 68"><polygon points="-13,-31 13,-31 31,-13 31,13 13,31 -13,31 -31,13 -31,-13" fill="var(--stop)" stroke="var(--sign-face)" stroke-width="3"/></svg> Parcial</span>
+  <span class="leg"><svg width="20" height="20" viewBox="-34 -34 68 68"><rect x="-32" y="-20" width="64" height="40" rx="5" fill="var(--info)" stroke="var(--sign-face)" stroke-width="3"/></svg> Entrega</span>
+</div>
+
+<script>
+/* ============================================================ contenido */
+const CLASES = [
+ {n:1, fecha:"18 ago", estado:"done", señal:"inicio", titulo:"Por qué fracasan las obras",
+  tema:"Qué es un proyecto y en qué se diferencia de todo lo demás que hace una organización.",
+  resumen:["<b>Proyecto</b>: temporal y con resultado único. <b>Operación</b>: continua y repetitiva.",
+           "Proyecto, programa y portafolio: la diferencia es el criterio de agrupación, no el tamaño.",
+           "Tasas de fracaso del sector construcción.",
+           "Conformación de las cinco firmas y asignación de obra."],
+  importancia:"Casi ninguna obra se cae por un error de cálculo. Se caen por alcance mal definido, plazos imposibles y nadie respondiendo. Esta clase encuadra todo el semestre.",
+  borrador:true},
+
+ {n:2, fecha:"25 ago", estado:"now", señal:"curva", titulo:"Entorno organizacional y enfoques",
+  tema:"Por qué existen los proyectos dentro de una organización y cómo se decide la forma de ejecutarlos.",
+  resumen:["Gestión organizacional y <b>alineación estratégica</b>: de la visión a las métricas.",
+           "Las cuatro razones por las que se crean proyectos.",
+           "<b>Enfoques</b>: predictivo, adaptativo e híbrido, con sus condiciones.",
+           "<b>Cadencia de entrega</b>: única, múltiple, periódica y continua.",
+           "Los 6 principios y los 7 dominios de la 8.ª edición."],
+  importancia:"Escoger el enfoque es la primera decisión gerencial del proyecto, y la que condiciona todas las demás. Equivocarse aquí no se corrige después.",
+  recursos:[{t:"Plantilla · Caso de negocio", f:"plantilla-caso-de-negocio.docx", tipo:"DOCX"}]},
+
+ {n:3, fecha:"1 sep", estado:"next", señal:"entrega", titulo:"Gobernanza y acta de constitución",
+  tema:"El documento que hace que un proyecto exista formalmente.",
+  resumen:["Caso de negocio y plan de gestión de beneficios.",
+           "<b>Acta de constitución</b>: qué contiene y qué autoriza.",
+           "Restricciones y supuestos.",
+           "Identificación y análisis de interesados."],
+  importancia:"Sin acta no hay gerente con autoridad. En obra pública esto equivale a saber quién firma, quién ordena el gasto y hasta dónde llega cada quien.",
+  entrega:"E1"},
+
+];
+
+const SEÑALES = {
+  inicio:'<circle r="26" fill="var(--go)" stroke="var(--sign-face)" stroke-width="4"/><path d="M -8 -10 L 12 0 L -8 10 Z" fill="var(--sign-face)"/>',
+  normal:'<circle r="16" fill="var(--card-bg)" stroke="var(--asphalt)" stroke-width="5"/>',
+  lento:'<circle r="28" fill="var(--sign-face)" stroke="var(--stop)" stroke-width="6"/><text y="8" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="22" font-weight="600" fill="var(--sign-ink)">30</text>',
+  rapido:'<circle r="28" fill="var(--sign-face)" stroke="var(--go)" stroke-width="6"/><text y="8" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="22" font-weight="600" fill="var(--sign-ink)">80</text>',
+  curva:'<rect x="-25" y="-25" width="50" height="50" rx="6" transform="rotate(45)" fill="var(--warn)" stroke="var(--sign-ink)" stroke-width="3"/><path d="M -11 12 C -11 -2, 11 -2, 11 -12" fill="none" stroke="var(--sign-ink)" stroke-width="4" stroke-linecap="round"/><path d="M 6 -14 L 13 -13 L 12 -6" fill="none" stroke="var(--sign-ink)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+  pare:'<polygon points="-13,-31 13,-31 31,-13 31,13 13,31 -13,31 -31,13 -31,-13" fill="var(--stop)" stroke="var(--sign-face)" stroke-width="3"/><text y="6" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="600" fill="var(--sign-face)">PARE</text>',
+  entrega:'<rect x="-32" y="-20" width="64" height="40" rx="5" fill="var(--info)" stroke="var(--sign-face)" stroke-width="3"/><text y="6" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="600" fill="var(--sign-face)">ENTREGA</text>',
+  obra:'<rect x="-27" y="-27" width="54" height="54" rx="7" transform="rotate(45)" fill="var(--warn)" stroke="var(--sign-ink)" stroke-width="3"/><rect x="-15" y="-3" width="30" height="7" rx="2" fill="var(--sign-ink)"/><rect x="-13" y="7" width="9" height="9" fill="var(--sign-ink)"/><rect x="4" y="7" width="9" height="9" fill="var(--sign-ink)"/><path d="M -8 -12 L 0 -20 L 8 -12 Z" fill="var(--sign-ink)"/>',
+  meta:'<rect x="-28" y="-20" width="56" height="40" fill="var(--sign-face)" stroke="var(--sign-ink)" stroke-width="3"/><g fill="var(--sign-ink)"><rect x="-28" y="-20" width="14" height="10"/><rect x="-14" y="-10" width="14" height="10"/><rect x="0" y="-20" width="14" height="10"/><rect x="14" y="-10" width="14" height="10"/><rect x="-28" y="0" width="14" height="10"/><rect x="-14" y="10" width="14" height="10"/><rect x="0" y="0" width="14" height="10"/><rect x="14" y="10" width="14" height="10"/></g>',
+};
+
+/* ============================================================ geometría
+   Las clases alternan estrictamente: la 1 en cresta, la 2 en valle, la 3 en
+   cresta. El contenido se desprende siempre hacia el lado libre de cada cresta.
+   Se añade un punto de entrada y otro de salida para que la vía nazca antes de
+   la clase 1 y siga más allá de la última construida.                        */
+// Proporción tomada de la curva de referencia: crestas 38 % más juntas y
+// amplitud 18 % mayor que en la versión anterior (1300 / 430).
+const PASO_X = 720, AMP = 245, Y0 = 1440, MARG = 900;
+const N = CLASES.length;
+
+const PTS = [];
+PTS.push({x: MARG - 520, y: Y0 + AMP*0.55, tipo:'entrada'});
+CLASES.forEach((c,i)=>{
+  PTS.push({x: MARG + i*PASO_X, y: Y0 + (i%2===0 ? -AMP : AMP), tipo:'clase', c, i, cresta: i%2===0});
+});
+PTS.push({x: MARG + N*PASO_X, y: Y0 + (N%2===0 ? -AMP : AMP), tipo:'salida'});
+
+const P = PTS.filter(p=>p.tipo==='clase');
+const SALIDA = PTS[PTS.length-1];
+const W = SALIDA.x + 640;
+const H = 2880;
+
+// el racimo sale hacia afuera de la cresta: arriba si es cresta, abajo si es valle
+function racimo(p){
+  const s = p.cresta ? -1 : 1;
+  return {
+    nodo:   {x:p.x,       y:p.y + s*260},
+    tema:   {x:p.x - 310, y:p.y + s*505},
+    resumen:{x:p.x + 25,  y:p.y + s*625},
+    imp:    {x:p.x + 315, y:p.y + s*480},
+    mat:    {x:p.x + 335, y:p.y + s*790},
+  };
+}
+
+/* Un único juego de segmentos para las dos vías. La construida reutiliza los
+   primeros, así su curvatura es exactamente la misma que la del trazado. */
+function segmentos(pts){
+  const segs=[];
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i], p1=pts[i], p2=pts[i+1], p3=pts[i+2]||pts[i+1];
+    segs.push(` C ${(p1.x+(p2.x-p0.x)/6).toFixed(1)} ${(p1.y+(p2.y-p0.y)/6).toFixed(1)},`
+            + ` ${(p2.x-(p3.x-p1.x)/6).toFixed(1)} ${(p2.y-(p3.y-p1.y)/6).toFixed(1)},`
+            + ` ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`);
+  }
+  return segs;
+}
+
+/* ============================================================ pintado */
+const mundo = document.getElementById('mundo');
+const svg = document.getElementById('trazo');
+const lienzo = document.getElementById('lienzo');
+
+mundo.style.width = W+'px';
+mundo.style.height = H+'px';
+svg.setAttribute('width', W); svg.setAttribute('height', H);
+svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+const iAhora = CLASES.findIndex(c=>c.estado==='now');
+const SEGS = segmentos(PTS);
+const arranque = `M ${PTS[0].x} ${PTS[0].y}`;
+const d = arranque + SEGS.join('');
+const dVisto = arranque + SEGS.slice(0, iAhora + 1).join('');
+
+let conectores = '', señales = '';
+P.forEach(p=>{
+  const r = racimo(p);
+  const es = [[p, r.nodo], [r.nodo, r.tema], [r.nodo, r.resumen], [r.nodo, r.imp]];
+  if(p.c.recursos && p.c.recursos.length) es.push([r.imp, r.mat]);
+  es.forEach(([a,b])=>{
+    conectores += `<path d="M ${a.x} ${a.y} C ${a.x} ${(a.y+b.y)/2}, ${b.x} ${(a.y+b.y)/2}, ${b.x} ${b.y}"
+      fill="none" stroke="var(--shoulder)" stroke-width="3" stroke-dasharray="9 8" opacity=".8"/>`;
+  });
+  señales += `<g transform="translate(${p.x} ${p.y})">${SEÑALES[p.c.señal]}</g>`;
+});
+
+// final de lo trazado: la vía sigue en obra
+señales += `<g transform="translate(${SALIDA.x} ${SALIDA.y})">${SEÑALES.obra}</g>`;
+const lblY = SALIDA.y + (N%2===0 ? -120 : 120);
+señales += `<text x="${SALIDA.x}" y="${lblY}" text-anchor="middle"
+  font-family="IBM Plex Mono, monospace" font-size="26" letter-spacing="2"
+  fill="var(--text-soft)">La vía continúa · clases ${N+1} en adelante</text>`;
+
+svg.innerHTML = `
+  <g opacity=".5">
+    <path d="${d}" fill="none" stroke="var(--shoulder)" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 16"/>
+    <path d="${d}" fill="none" stroke="var(--asphalt)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" opacity=".26"/>
+  </g>
+  <path d="${dVisto}" fill="none" stroke="var(--shoulder)" stroke-width="54" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${dVisto}" fill="none" stroke="var(--asphalt-2)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${dVisto}" fill="none" stroke="var(--asphalt)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="${dVisto}" fill="none" stroke="var(--marking)" stroke-width="4" stroke-dasharray="26 22" opacity=".92"/>
+  ${conectores}${señales}`;
+
+function poner(el, pos){ el.style.left = pos.x+'px'; el.style.top = pos.y+'px'; mundo.appendChild(el); }
+
+P.forEach(p=>{
+  const c = p.c, r = racimo(p);
+
+  const chips = [];
+  if(c.estado==='now') chips.push('<span class="chip hoy">Clase de hoy</span>');
+  if(c.entrega) chips.push(`<span class="chip ent">Entrega ${c.entrega}</span>`);
+  if(c.parcial) chips.push('<span class="chip par">Parcial</span>');
+
+  const nodo = document.createElement('div');
+  nodo.className = `nodo ${c.estado}`;
+  nodo.dataset.i = p.i;
+  nodo.innerHTML = `<div class="tarjeta">
+      <div class="cab"><span class="cl">Clase ${String(c.n).padStart(2,'0')}</span><span class="fe">${c.fecha}</span></div>
+      <h3>${c.titulo}</h3>
+      ${chips.length?`<div class="chips">${chips.join('')}</div>`:''}
+    </div>`;
+  poner(nodo, r.nodo);
+
+  const tema = document.createElement('div');
+  tema.className = 'globo tema'; tema.dataset.i = p.i;
+  tema.innerHTML = `<div class="t">Tema</div><p>${c.tema}</p>`;
+  poner(tema, r.tema);
+
+  const res = document.createElement('div');
+  res.className = 'globo'; res.dataset.i = p.i;
+  res.innerHTML = `<div class="t">Resumen</div><ul>${c.resumen.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+  poner(res, r.resumen);
+
+  const imp = document.createElement('div');
+  imp.className = 'globo imp'; imp.dataset.i = p.i;
+  imp.innerHTML = `<div class="t">Por qué importa</div><p>${c.importancia}</p>`;
+  poner(imp, r.imp);
+
+  if(c.recursos && c.recursos.length){
+    const mat = document.createElement('div');
+    mat.className = 'globo mat'; mat.dataset.i = p.i;
+    mat.innerHTML = `<div class="t">Material de apoyo</div><div class="rec">${
+      c.recursos.map(x =>
+        `<a href="recursos/${x.f}" download><span>${x.t}</span><span class="ext">${x.tipo} ↓</span></a>`
+      ).join('')
+    }</div>`;
+    poner(mat, r.mat);
+  }
+});
+
+/* ============================================================ cámara */
+let cam = {x:0, y:0, k:1}, anim = null;
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function aplicar(){
+  mundo.style.transform = `translate(${cam.x}px, ${cam.y}px) scale(${cam.k})`;
+}
+function limitar(k){ return Math.min(1.6, Math.max(0.08, k)); }
+
+function irA(cx, cy, k, suave){
+  const R = lienzo.getBoundingClientRect();
+  const destino = {k, x: R.width/2 - cx*k, y: R.height/2 - cy*k};
+  if(!suave || reduced){ cam = destino; aplicar(); return; }
+  cancelAnimationFrame(anim);
+  const ini = {...cam}, t0 = performance.now(), dur = 620;
+  (function paso(t){
+    const u = Math.min(1, (t-t0)/dur), e = 1-Math.pow(1-u, 3);
+    cam = {x: ini.x+(destino.x-ini.x)*e, y: ini.y+(destino.y-ini.y)*e, k: ini.k+(destino.k-ini.k)*e};
+    aplicar();
+    if(u<1) anim = requestAnimationFrame(paso);
+  })(t0);
+}
+
+function ajustarTodo(suave){
+  const R = lienzo.getBoundingClientRect();
+  const k = limitar(Math.min(R.width/(W+200), R.height/(H+200)));
+  irA(W/2, H/2, k, suave);
+}
+
+/* --------- arrastre libre */
+let drag = null;
+lienzo.addEventListener('pointerdown', e=>{
+  if(e.target.closest('a')) return;
+  e.preventDefault();                       // corta la selección nativa de texto
+  drag = {px:e.clientX, py:e.clientY, cx:cam.x, cy:cam.y};
+  lienzo.setPointerCapture(e.pointerId);
+  lienzo.classList.add('arrastrando');
+  cancelAnimationFrame(anim);
+});
+lienzo.addEventListener('pointermove', e=>{
+  if(!drag) return;
+  cam.x = drag.cx + (e.clientX-drag.px);
+  cam.y = drag.cy + (e.clientY-drag.py);
+  aplicar();
+});
+lienzo.addEventListener('dragstart', e=>e.preventDefault());
+['pointerup','pointercancel'].forEach(ev=>lienzo.addEventListener(ev, ()=>{
+  drag = null; lienzo.classList.remove('arrastrando');
+}));
+
+/* --------- rueda: zoom en el punto del cursor */
+lienzo.addEventListener('wheel', e=>{
+  e.preventDefault();
+  const R = lienzo.getBoundingClientRect();
+  const mx = e.clientX-R.left, my = e.clientY-R.top;
+  const k2 = limitar(cam.k * (e.deltaY < 0 ? 1.12 : 1/1.12));
+  cam.x = mx - (mx-cam.x) * (k2/cam.k);
+  cam.y = my - (my-cam.y) * (k2/cam.k);
+  cam.k = k2; aplicar();
+}, {passive:false});
+
+/* ============================================================ modos */
+let guiado = false, actual = 0;
+const bLibre = document.getElementById('m-libre'), bGuiado = document.getElementById('m-guiado');
+const bAnt = document.getElementById('ant'), bSig = document.getElementById('sig');
+const paso = document.getElementById('paso');
+
+function foco(){
+  document.querySelectorAll('.nodo,.globo').forEach(el=>
+    el.classList.toggle('foco', !guiado || +el.dataset.i === actual));
+}
+/* Acercamiento del recorrido guiado. Se mide el racimo real de la clase --con
+   el alto que cada tarjeta ocupa de verdad-- y se encuadra completo, para poder
+   subir el zoom sin que se corten los globos de abajo.                       */
+const ZOOM_GUIADO = 0.81, MARGEN_GUIADO = 60;
+
+function cajaClase(i){
+  const els = document.querySelectorAll(`.nodo[data-i="${i}"], .globo[data-i="${i}"]`);
+  const p = P[i];
+  let x1 = p.x - 60, x2 = p.x + 60, y1 = p.y - 55, y2 = p.y + 55;   // la señal en la vía
+  els.forEach(el=>{
+    const cx = parseFloat(el.style.left), cy = parseFloat(el.style.top);
+    const w = el.offsetWidth, h = el.offsetHeight;
+    x1 = Math.min(x1, cx - w/2); x2 = Math.max(x2, cx + w/2);
+    y1 = Math.min(y1, cy - h/2); y2 = Math.max(y2, cy + h/2);
+  });
+  return {cx:(x1+x2)/2, cy:(y1+y2)/2, w:x2-x1, h:y2-y1};
+}
+
+function verClase(i, suave){
+  actual = Math.max(0, Math.min(CLASES.length-1, i));
+  const caja = cajaClase(actual);
+  const R = lienzo.getBoundingClientRect();
+  const k = limitar(Math.min(ZOOM_GUIADO,
+                             (R.width  - MARGEN_GUIADO) / caja.w,
+                             (R.height - MARGEN_GUIADO) / caja.h));
+  irA(caja.cx, caja.cy, k, suave);
+  paso.textContent = `Clase ${CLASES[actual].n} de ${CLASES.length}`;
+  bAnt.disabled = actual===0; bSig.disabled = actual===CLASES.length-1;
+  foco();
+}
+function modo(g){
+  guiado = g;
+  bLibre.setAttribute('aria-pressed', String(!g));
+  bGuiado.setAttribute('aria-pressed', String(g));
+  lienzo.classList.toggle('guiado', g);
+  foco();
+  if(g) verClase(actual, true);
+}
+bLibre.addEventListener('click', ()=>modo(false));
+bGuiado.addEventListener('click', ()=>modo(true));
+bAnt.addEventListener('click', ()=>{ if(!guiado) modo(true); else verClase(actual-1, true); });
+bSig.addEventListener('click', ()=>{ if(!guiado) modo(true); else verClase(actual+1, true); });
+document.getElementById('todo').addEventListener('click', ()=>{ modo(false); ajustarTodo(true); });
+
+document.addEventListener('keydown', e=>{
+  if(e.target.matches('input,textarea')) return;
+  if(e.key==='ArrowRight'){ e.preventDefault(); guiado ? verClase(actual+1,true) : (cam.x-=140, aplicar()); }
+  if(e.key==='ArrowLeft'){  e.preventDefault(); guiado ? verClase(actual-1,true) : (cam.x+=140, aplicar()); }
+  if(!guiado && e.key==='ArrowUp'){   e.preventDefault(); cam.y+=140; aplicar(); }
+  if(!guiado && e.key==='ArrowDown'){ e.preventDefault(); cam.y-=140; aplicar(); }
+});
+
+/* al abrir: empieza en la clase 1 */
+actual = 0;
+verClase(0, false);
+paso.textContent = `Clase 1 de ${CLASES.length}`;
+foco();
+addEventListener('resize', ()=>{ if(guiado) verClase(actual,false); });
+</script>
