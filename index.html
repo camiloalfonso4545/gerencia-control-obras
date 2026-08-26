@@ -670,25 +670,76 @@ function ajustarTodo(suave){
   irA(W/2, H/2, k, suave);
 }
 
-/* --------- arrastre libre */
-let drag = null;
+/* --------- arrastre y pellizco
+   El lienzo lleva touch-action:none para poder arrastrarlo, y eso apaga de paso
+   el pellizco propio del navegador. Hay que reponerlo a mano: se registran los
+   dedos activos y, cuando hay dos, se acerca o aleja tomando como ancla el punto
+   medio entre ellos. En el escritorio solo existe un puntero, así que la rama de
+   dos dedos no llega a activarse nunca.                                        */
+const dedos = new Map();
+let drag = null, pellizco = null;
+
+function medio(){
+  const [a, b] = [...dedos.values()];
+  return {x:(a.x+b.x)/2, y:(a.y+b.y)/2, d:Math.hypot(a.x-b.x, a.y-b.y)};
+}
+function tomarArrastre(x, y){
+  drag = {px:x, py:y, cx:cam.x, cy:cam.y};
+  lienzo.classList.add('arrastrando');
+}
+
 lienzo.addEventListener('pointerdown', e=>{
   if(e.target.closest('a, .panel')) return;   // los paneles no arrastran el mapa
   e.preventDefault();                       // corta la selección nativa de texto
-  drag = {px:e.clientX, py:e.clientY, cx:cam.x, cy:cam.y};
   lienzo.setPointerCapture(e.pointerId);
-  lienzo.classList.add('arrastrando');
+  dedos.set(e.pointerId, {x:e.clientX, y:e.clientY});
   cancelAnimationFrame(anim);
+
+  if(dedos.size === 1) tomarArrastre(e.clientX, e.clientY);
+  else if(dedos.size === 2){
+    drag = null; lienzo.classList.remove('arrastrando');
+    const m = medio();
+    pellizco = {d:m.d, x:m.x, y:m.y, k:cam.k, cx:cam.x, cy:cam.y};
+  }
 });
+
 lienzo.addEventListener('pointermove', e=>{
-  if(!drag) return;
-  cam.x = drag.cx + (e.clientX-drag.px);
-  cam.y = drag.cy + (e.clientY-drag.py);
-  aplicar();
+  if(!dedos.has(e.pointerId)) return;
+  dedos.set(e.pointerId, {x:e.clientX, y:e.clientY});
+
+  if(pellizco && dedos.size >= 2){
+    const R = lienzo.getBoundingClientRect(), m = medio();
+    const k2 = limitar(pellizco.k * (m.d / pellizco.d));
+    // el punto del mundo que estaba bajo los dedos sigue bajo los dedos, así el
+    // mapa se acerca y se desplaza en un solo gesto
+    const wx = (pellizco.x - R.left - pellizco.cx) / pellizco.k;
+    const wy = (pellizco.y - R.top  - pellizco.cy) / pellizco.k;
+    cam.k = k2;
+    cam.x = (m.x - R.left) - wx * k2;
+    cam.y = (m.y - R.top)  - wy * k2;
+    aplicar();
+    return;
+  }
+
+  if(drag){
+    cam.x = drag.cx + (e.clientX-drag.px);
+    cam.y = drag.cy + (e.clientY-drag.py);
+    aplicar();
+  }
 });
+
 lienzo.addEventListener('dragstart', e=>e.preventDefault());
-['pointerup','pointercancel'].forEach(ev=>lienzo.addEventListener(ev, ()=>{
-  drag = null; lienzo.classList.remove('arrastrando');
+['pointerup','pointercancel'].forEach(ev=>lienzo.addEventListener(ev, e=>{
+  dedos.delete(e.pointerId);
+  if(dedos.size < 2) pellizco = null;
+  if(dedos.size === 1){
+    // al levantar un dedo, el que queda retoma el arrastre desde donde está:
+    // sin esto el mapa pega un salto
+    const p = dedos.values().next().value;
+    tomarArrastre(p.x, p.y);
+  } else if(dedos.size === 0){
+    drag = null; lienzo.classList.remove('arrastrando');
+  }
 }));
 
 /* --------- rueda: zoom en el punto del cursor */
