@@ -481,7 +481,7 @@ function foco(){
 /* Acercamiento del recorrido guiado. Se mide el racimo real de la clase --con
    el alto que cada tarjeta ocupa de verdad-- y se encuadra completo, para poder
    subir el zoom sin que se corten los globos de abajo.                       */
-const ZOOM_GUIADO = 0.81, MARGEN_GUIADO = 60;
+const ZOOM_GUIADO = 0.81, ZOOM_MIN_GUIADO = 0.62, MARGEN_GUIADO = 60;
 
 function cajaClase(i){
   const els = document.querySelectorAll(`.nodo[data-i="${i}"], .globo[data-i="${i}"]`);
@@ -500,9 +500,14 @@ function verClase(i, suave){
   actual = Math.max(0, Math.min(CLASES.length-1, i));
   const caja = cajaClase(actual);
   const R = lienzo.getBoundingClientRect();
-  const k = limitar(Math.min(ZOOM_GUIADO,
-                             (R.width  - MARGEN_GUIADO) / caja.w,
-                             (R.height - MARGEN_GUIADO) / caja.h));
+  // Se encuadra el racimo completo, pero nunca por debajo del acercamiento
+  // mínimo: en una ventana baja vale más pasear que dejar el texto ilegible.
+  // El piso cubre además el lienzo de tamaño cero (pestaña aún sin componer),
+  // donde la resta daría negativo.
+  const k = limitar(Math.max(ZOOM_MIN_GUIADO,
+                             Math.min(ZOOM_GUIADO,
+                                      (R.width  - MARGEN_GUIADO) / caja.w,
+                                      (R.height - MARGEN_GUIADO) / caja.h)));
   irA(caja.cx, caja.cy, k, suave);
   paso.textContent = `Clase ${CLASES[actual].n} de ${CLASES.length}`;
   bAnt.disabled = actual===0; bSig.disabled = actual===CLASES.length-1;
