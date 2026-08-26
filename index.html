@@ -145,6 +145,88 @@ body{
 }
 .rec span .ext{color:var(--text-soft)}
 
+/* ---------------------------------------------------- paneles laterales
+   Flotan sobre el lienzo, no dentro del mundo que se arrastra: quedan
+   quietos mientras el mapa se mueve debajo.                              */
+.panel{
+  position:absolute; top:16px; z-index:12; width:252px;
+  display:flex; flex-direction:column; max-height:calc(100% - 32px);
+  background:var(--card-bg); border:1px solid var(--card-border);
+  border-radius:13px; box-shadow:var(--shadow); overflow:hidden; cursor:default;
+}
+.panel-izq{left:16px}
+.panel-der{right:16px; width:296px}
+.panel-cab{
+  flex:0 0 auto; width:100%; display:flex; align-items:center; justify-content:space-between;
+  gap:10px; border:0; background:var(--paper-soft); color:var(--text-soft); cursor:pointer;
+  font-family:'IBM Plex Mono',monospace; font-size:.63rem; letter-spacing:.13em;
+  text-transform:uppercase; font-weight:600; padding:9px 12px; text-align:left;
+}
+.panel-cab:hover{color:var(--text)}
+.panel-cab:focus-visible{outline:2px solid var(--accent); outline-offset:-2px}
+.panel-cab .tog{font-size:.85rem; line-height:1; color:var(--accent-deep)}
+.panel-cuerpo{flex:1 1 auto; overflow-y:auto; padding:11px; display:flex; flex-direction:column; gap:9px}
+.panel.cerrado .panel-cuerpo{display:none}
+
+/* --- enlaces */
+.enlace{
+  display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:10px;
+  border:1px solid var(--card-border); background:var(--paper);
+  text-decoration:none; color:var(--text); transition:border-color .15s, transform .15s;
+}
+.enlace:hover{border-color:var(--accent); transform:translateY(-1px)}
+.enlace:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.enlace .marca{flex:0 0 auto; width:38px; height:38px; border-radius:9px; display:grid; place-items:center}
+.enlace .txt{min-width:0}
+.enlace .nom{display:block; font-weight:600; font-size:14px; line-height:1.2}
+.enlace .des{display:block; font-size:11.5px; color:var(--text-soft); line-height:1.35; margin-top:2px}
+
+/* --- fechas limite */
+.ev{
+  display:flex; flex-direction:column; gap:7px; padding:10px 11px;
+  border:1px solid var(--card-border); border-radius:11px; background:var(--paper);
+}
+.ev .fila{display:flex; align-items:baseline; justify-content:space-between; gap:8px}
+.ev .tipo{
+  font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.12em;
+  text-transform:uppercase; font-weight:600;
+}
+.ev .rest{
+  font-family:'IBM Plex Mono',monospace; font-size:.72rem; font-weight:600;
+  font-variant-numeric:tabular-nums; color:var(--text);
+}
+.ev h4{margin:0; font-size:13.5px; font-weight:600; line-height:1.25; text-wrap:balance}
+.ev .cuando{font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--text-soft); line-height:1.4}
+.ev .barra{height:5px; border-radius:99px; background:var(--paper-soft); overflow:hidden}
+.ev .barra i{display:block; height:100%; border-radius:99px; transition:width 1s linear}
+.ev .sello{
+  display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono',monospace;
+  font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; font-weight:600;
+}
+.ev .sello svg{flex:0 0 auto}
+
+/* el color dice cuanto falta: lejos, pronto, hoy mismo, abierto, cerrado */
+.ev.lejos   .tipo,.ev.lejos   .sello{color:var(--info)}   .ev.lejos   .barra i{background:var(--info)}
+.ev.pronto  .tipo,.ev.pronto  .sello{color:var(--warn)}   .ev.pronto  .barra i{background:var(--warn)}
+.ev.urgente .tipo,.ev.urgente .sello{color:var(--stop)}   .ev.urgente .barra i{background:var(--stop)}
+.ev.urgente{border-color:color-mix(in srgb,var(--stop) 45%,transparent)}
+.ev.curso   .tipo,.ev.curso   .sello{color:var(--accent-deep)} .ev.curso .barra i{background:var(--accent)}
+.ev.curso{border-color:var(--accent); border-width:1.5px}
+.ev.hecho{
+  border-color:color-mix(in srgb,var(--go) 48%,transparent);
+  background:color-mix(in srgb,var(--go) 10%, var(--paper));
+}
+.ev.hecho .tipo,.ev.hecho .sello{color:var(--go)}
+.ev.hecho .barra i{background:var(--go)}
+.ev.hecho h4{color:var(--text-soft)}
+
+@media (max-width:1180px){ .panel-izq{width:216px} .panel-der{width:262px} }
+@media (max-width:820px){
+  .panel{top:10px; max-height:calc(100% - 20px)}
+  .panel-izq{left:10px; width:min(46vw,200px)}
+  .panel-der{right:10px; width:min(46vw,228px)}
+}
+
 /* enfoque en modo guiado */
 .nodo, .globo{transition:opacity .45s ease}
 #lienzo.guiado .nodo:not(.foco), #lienzo.guiado .globo:not(.foco){opacity:.26}
@@ -192,6 +274,20 @@ body{
   <div id="mundo">
     <svg id="trazo" aria-hidden="true"></svg>
   </div>
+
+  <aside class="panel panel-izq" id="panel-enlaces">
+    <button class="panel-cab" type="button" aria-expanded="true" aria-controls="cuerpo-enlaces">
+      <span>Plataformas</span><span class="tog" aria-hidden="true">−</span>
+    </button>
+    <div class="panel-cuerpo" id="cuerpo-enlaces"></div>
+  </aside>
+
+  <aside class="panel panel-der" id="panel-fechas">
+    <button class="panel-cab" type="button" aria-expanded="true" aria-controls="cuerpo-fechas">
+      <span>Fechas límite</span><span class="tog" aria-hidden="true">−</span>
+    </button>
+    <div class="panel-cuerpo" id="cuerpo-fechas"></div>
+  </aside>
 </div>
 
 <div class="pie">
@@ -388,6 +484,134 @@ P.forEach(p=>{
   }
 });
 
+/* ============================================================ paneles
+   Enlaces a la izquierda y cuenta regresiva a la derecha. Las horas se
+   escriben con el desfase de Colombia (-05:00) y se muestran forzando la
+   zona America/Bogota: un estudiante conectado desde otro huso ve la hora
+   del curso, no la suya.                                                   */
+const ENLACES = [
+  {nom:'Moodle', des:'Parciales y entregas del proyecto',
+   href:'https://presencial.uptc.edu.co/?lang=es_co', fondo:'#F98012',
+   icono:'<svg width="26" height="20" viewBox="0 0 34 24" aria-hidden="true">'
+       + '<path d="M17 1.5 L32.5 7.6 L17 13.7 L1.5 7.6 Z" fill="#fff"/>'
+       + '<path d="M7 10.8 V16.4 C7 19.4 11.5 21.2 17 21.2 C22.5 21.2 27 19.4 27 16.4 V10.8"'
+       + ' fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>'
+       + '<path d="M31.4 8.4 V15.2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>'
+       + '<circle cx="31.4" cy="17.6" r="1.9" fill="#fff"/></svg>'},
+];
+
+/* Cada evento declara «desde» (cuando se anuncio) para que la barra tenga de
+   donde empezar a agotarse, y «limite» para el cierre. Si ademas tiene «abre»,
+   es una ventana: primero cuenta para abrir, luego para cerrar.             */
+const EVENTOS = [
+  {tipo:'Entrega', titulo:'Primera entrega · E1', donde:'Se sube a Moodle',
+   desde:'2026-08-25T18:00:00-05:00',
+   limite:'2026-08-31T07:59:00-05:00'},
+
+  {tipo:'Parcial', titulo:'Parcial 1 · virtual', donde:'Se presenta en Moodle',
+   desde:'2026-08-26T09:00:00-05:00',
+   abre:'2026-09-04T08:00:00-05:00',
+   limite:'2026-09-04T10:00:00-05:00'},
+];
+
+const CHULO = '<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true">'
+  + '<path d="M1.6 6.4 L4.5 9.3 L10.4 2.7" fill="none" stroke="currentColor"'
+  + ' stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const fFecha = new Intl.DateTimeFormat('es-CO', {timeZone:'America/Bogota',
+  weekday:'short', day:'numeric', month:'short', hour:'numeric', minute:'2-digit', hour12:true});
+const fHora = new Intl.DateTimeFormat('es-CO', {timeZone:'America/Bogota',
+  hour:'numeric', minute:'2-digit', hour12:true});
+
+const DIA = 86400000;
+
+function faltante(ms){
+  const s = Math.floor(ms/1000);
+  const d = Math.floor(s/86400), h = Math.floor(s%86400/3600);
+  const m = Math.floor(s%3600/60), g = s%60;
+  if(d > 0) return `${d} d ${h} h`;
+  if(h > 0) return `${h} h ${String(m).padStart(2,'0')} m`;
+  return `${m} m ${String(g).padStart(2,'0')} s`;
+}
+
+function estadoDe(e, ahora){
+  const lim = +new Date(e.limite);
+  const abre = e.abre ? +new Date(e.abre) : null;
+  const desde = +new Date(e.desde);
+  if(ahora >= lim)            return {clave:'hecho',   frac:1, texto:'—',                    sello:`${CHULO} Cerrado`};
+  if(abre && ahora >= abre)   return {clave:'curso',   frac:(lim-ahora)/(lim-abre), texto:faltante(lim-ahora), sello:'Abierto ahora'};
+  const fin = abre || lim, falta = fin - ahora;
+  const frac = Math.max(0, Math.min(1, falta/(fin-desde)));
+  const clave = falta <= DIA ? 'urgente' : falta <= 3*DIA ? 'pronto' : 'lejos';
+  const sello = clave==='urgente' ? 'Último día' : clave==='pronto' ? 'Esta semana' : 'Programado';
+  return {clave, frac, texto:faltante(falta), sello};
+}
+
+function ordenar(ahora){
+  return EVENTOS.map((e,i)=>({e, i, st:estadoDe(e, ahora), ref:+new Date(e.abre || e.limite)}))
+    .sort((a,b)=>{
+      const ha = a.st.clave==='hecho', hb = b.st.clave==='hecho';
+      if(ha !== hb) return ha ? 1 : -1;          // lo cumplido baja al final
+      return ha ? b.ref - a.ref : a.ref - b.ref; // lo pendiente, lo mas proximo arriba
+    });
+}
+
+/* --------- pintado de los paneles */
+const cuerpoEnlaces = document.getElementById('cuerpo-enlaces');
+const cuerpoFechas = document.getElementById('cuerpo-fechas');
+
+cuerpoEnlaces.innerHTML = ENLACES.map(l => `
+  <a class="enlace" href="${l.href}" target="_blank" rel="noopener noreferrer">
+    <span class="marca" style="background:${l.fondo}">${l.icono}</span>
+    <span class="txt"><span class="nom">${l.nom}</span><span class="des">${l.des}</span></span>
+  </a>`).join('');
+
+let firma = '';
+function pintarFechas(){
+  const ahora = Date.now();
+  const filas = ordenar(ahora);
+  const nueva = filas.map(f => f.i + ':' + f.st.clave).join('|');
+
+  if(nueva !== firma){                      // solo se rehace si algo cambio de estado
+    firma = nueva;
+    cuerpoFechas.innerHTML = filas.map(f => {
+      const e = f.e, lim = new Date(e.limite);
+      const cuando = e.abre
+        ? `${fFecha.format(new Date(e.abre))} → ${fHora.format(lim)}`
+        : fFecha.format(lim);
+      return `<article class="ev ${f.st.clave}" data-ev="${f.i}">
+          <div class="fila"><span class="tipo">${e.tipo}</span><span class="rest">${f.st.texto}</span></div>
+          <h4>${e.titulo}</h4>
+          <div class="cuando">${cuando}<br>${e.donde}</div>
+          <div class="barra"><i style="width:${(f.st.frac*100).toFixed(1)}%"></i></div>
+          <div class="sello">${f.st.sello}</div>
+        </article>`;
+    }).join('');
+    return;
+  }
+
+  filas.forEach(f => {                      // si no, solo se mueven barra y reloj
+    const el = cuerpoFechas.querySelector(`[data-ev="${f.i}"]`);
+    if(!el) return;
+    el.querySelector('.rest').textContent = f.st.texto;
+    el.querySelector('.barra i').style.width = (f.st.frac*100).toFixed(1)+'%';
+  });
+}
+
+pintarFechas();
+setInterval(pintarFechas, 1000);
+
+/* --------- plegar y desplegar */
+document.querySelectorAll('.panel-cab').forEach(cab => {
+  cab.addEventListener('click', ()=>{
+    const panel = cab.closest('.panel');
+    const cerrado = panel.classList.toggle('cerrado');
+    cab.setAttribute('aria-expanded', String(!cerrado));
+    cab.querySelector('.tog').textContent = cerrado ? '+' : '−';
+  });
+});
+if(innerWidth < 820) document.querySelectorAll('.panel-cab').forEach(c => c.click());
+
 /* ============================================================ cámara */
 let cam = {x:0, y:0, k:1}, anim = null;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -420,7 +644,7 @@ function ajustarTodo(suave){
 /* --------- arrastre libre */
 let drag = null;
 lienzo.addEventListener('pointerdown', e=>{
-  if(e.target.closest('a')) return;
+  if(e.target.closest('a, .panel')) return;   // los paneles no arrastran el mapa
   e.preventDefault();                       // corta la selección nativa de texto
   drag = {px:e.clientX, py:e.clientY, cx:cam.x, cy:cam.y};
   lienzo.setPointerCapture(e.pointerId);
@@ -440,6 +664,7 @@ lienzo.addEventListener('dragstart', e=>e.preventDefault());
 
 /* --------- rueda: zoom en el punto del cursor */
 lienzo.addEventListener('wheel', e=>{
+  if(e.target.closest('.panel')) return;     // dentro de un panel la rueda desplaza, no acerca
   e.preventDefault();
   const R = lienzo.getBoundingClientRect();
   const mx = e.clientX-R.left, my = e.clientY-R.top;
