@@ -300,32 +300,37 @@ body{
 <script>
 /* ============================================================ contenido */
 const CLASES = [
- {n:1, fecha:"18 ago", estado:"done", señal:"inicio", titulo:"Por qué fracasan las obras",
-  tema:"Qué es un proyecto y en qué se diferencia de todo lo demás que hace una organización.",
-  resumen:["<b>Proyecto</b>: temporal y con resultado único. <b>Operación</b>: continua y repetitiva.",
-           "Proyecto, programa y portafolio: la diferencia es el criterio de agrupación, no el tamaño.",
-           "Tasas de fracaso del sector construcción.",
+ {n:1, fecha:"18 ago", estado:"done", señal:"inicio", titulo:"Qué es un proyecto y cómo crea valor",
+  tema:"Qué es un proyecto, en qué se diferencia de la operación y por qué una organización lo emprende.",
+  resumen:["<b>Proyecto</b>: iniciativa temporal, en un contexto único, emprendida para crear valor.",
+           "La misma idea en PRINCE2, ISO 21502, IPMA y APM: en qué coinciden y en qué se separan.",
+           "<b>Dirección de proyectos</b> y conceptos clave: director, interesados, cliente, usuario final y valor.",
+           "<b>Cadena de valor</b>: entregable → resultado → beneficio → valor. Ningún eslabón se salta.",
+           "Beneficios <b>tangibles e intangibles</b>, y el sistema de entrega de valor: portafolios, programas, proyectos, productos y operaciones.",
+           "Fases de un proyecto según distintos autores.",
            "Conformación de las cinco firmas y asignación de obra."],
-  importancia:"Casi ninguna obra se cae por un error de cálculo. Se caen por alcance mal definido, plazos imposibles y nadie respondiendo. Esta clase encuadra todo el semestre.",
-  borrador:true},
+  importancia:"Una obra entregada a tiempo y dentro del presupuesto puede seguir siendo un fracaso si nadie la usa. Distinguir el entregable del beneficio es lo que separa al ingeniero que construye del gerente que responde por el resultado."},
 
- {n:2, fecha:"25 ago", estado:"now", señal:"curva", titulo:"Entorno organizacional y enfoques",
-  tema:"Por qué existen los proyectos dentro de una organización y cómo se decide la forma de ejecutarlos.",
-  resumen:["Gestión organizacional y <b>alineación estratégica</b>: de la visión a las métricas.",
-           "Las cuatro razones por las que se crean proyectos.",
-           "<b>Enfoques</b>: predictivo, adaptativo e híbrido, con sus condiciones.",
-           "<b>Cadencia de entrega</b>: única, múltiple, periódica y continua.",
-           "Los 6 principios y los 7 dominios de la 8.ª edición."],
-  importancia:"Escoger el enfoque es la primera decisión gerencial del proyecto, y la que condiciona todas las demás. Equivocarse aquí no se corrige después.",
+ {n:2, fecha:"25 ago", estado:"now", señal:"curva", titulo:"El caso de negocio",
+  tema:"Por qué un proyecto debe justificarse antes de existir, y cómo se documenta esa justificación.",
+  resumen:["<b>Caso de negocio</b>: estudio de viabilidad económica documentado que establece la validez de los beneficios que aportará el proyecto.",
+           "Es un <b>documento del negocio</b>: nace fuera del proyecto y entra como insumo, junto al plan de gestión de beneficios.",
+           "Qué debe contener: el problema, las alternativas evaluadas, los costos, los beneficios, cómo se creará valor y los criterios de éxito.",
+           "Es la base del <b>acta de constitución</b>: sin caso de negocio aprobado no hay autorización ni valor esperado declarado.",
+           "No se archiva. Se contrasta durante todo el ciclo de vida; si el proyecto deja de alinearse, terminarlo puede ser la decisión correcta.",
+           "Entrega de la plantilla: el caso de negocio es el primer entregable del proyecto del curso."],
+  importancia:"En contratación estatal colombiana el caso de negocio es pariente directo de los estudios previos y del análisis del sector. Si esa justificación está mal hecha, el proyecto nace torcido y ningún cronograma lo endereza después.",
   recursos:[{t:"Plantilla · Caso de negocio", f:"plantilla-caso-de-negocio.docx", tipo:"DOCX"}]},
 
- {n:3, fecha:"1 sep", estado:"next", señal:"entrega", titulo:"Gobernanza y acta de constitución",
-  tema:"El documento que hace que un proyecto exista formalmente.",
-  resumen:["Caso de negocio y plan de gestión de beneficios.",
-           "<b>Acta de constitución</b>: qué contiene y qué autoriza.",
-           "Restricciones y supuestos.",
-           "Identificación y análisis de interesados."],
-  importancia:"Sin acta no hay gerente con autoridad. En obra pública esto equivale a saber quién firma, quién ordena el gasto y hasta dónde llega cada quien.",
+ {n:3, fecha:"1 sep", estado:"next", señal:"entrega", titulo:"Principios, enfoques y cadencia",
+  tema:"Qué guía las decisiones del gerente y cómo se decide la forma de ejecutar el proyecto.",
+  resumen:["Los <b>6 principios</b> de la 8.ª edición: visión holística, valor, calidad, liderar con responsabilidad, sostenibilidad y cultura de empoderamiento.",
+           "Las <b>cuatro razones</b> por las que se crean proyectos: normativa, interesados, estrategia y proceso.",
+           "<b>Enfoques de desarrollo</b>: predictivo, adaptativo e híbrido, con las condiciones de cada uno.",
+           "<b>Cadencia de entrega</b>: única, múltiple, periódica y continua.",
+           "Gestión organizacional y <b>alineación estratégica</b>: de la visión a objetivos medibles.",
+           "Factores que afectan el desarrollo del proyecto, y las <b>cinco áreas de enfoque</b>: iniciación, planificación, ejecución, monitoreo y control, y cierre."],
+  importancia:"Escoger el enfoque y la cadencia es la primera decisión gerencial del proyecto, y la que condiciona todas las demás. Equivocarse aquí no se corrige después con más control.",
   entrega:"E1"},
 
 ];
@@ -441,7 +446,7 @@ P.forEach(p=>{
   const c = p.c, r = racimo(p);
 
   const chips = [];
-  if(c.estado==='now') chips.push('<span class="chip hoy">Clase de hoy</span>');
+  if(c.estado==='now') chips.push('<span class="chip hoy">Última clase dictada</span>');
   if(c.entrega) chips.push(`<span class="chip ent">Entrega ${c.entrega}</span>`);
   if(c.parcial) chips.push('<span class="chip par">Parcial</span>');
 
