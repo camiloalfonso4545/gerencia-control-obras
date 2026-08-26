@@ -17,30 +17,11 @@
   --stop:#9C4A32; --warn:#C68A3E; --go:#67704F; --info:#4A6670;
   --sign-ink:#2E3226; --sign-face:#F1EBE0;
   --shadow:0 18px 44px -26px rgba(46,50,38,.45);
+  /* La pagina vive siempre en claro, por decision del profesor. No hay bloque
+     oscuro: color-scheme evita ademas que el navegador oscurezca por su cuenta
+     barras de desplazamiento y controles cuando el sistema esta en oscuro. */
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --paper:#23261D; --paper-soft:#2C3025;
-    --accent:#BC9165; --accent-deep:#CFA87C;
-    --line:#3C4133; --text:#E8E0D6; --text-soft:#A6906C;
-    --card-bg:#2B2F24; --card-border:#3E432F;
-    --asphalt:#514F4A; --asphalt-2:#43413D; --shoulder:#6E6046; --marking:#E8E0D6;
-    --stop:#C4674C; --warn:#D8A054; --go:#8B9670; --info:#6E8F9B;
-    --sign-ink:#20231A; --sign-face:#E8E0D6;
-    --shadow:0 18px 44px -26px rgba(0,0,0,.8);
-  }
-}
-:root[data-theme="dark"]{
-  --paper:#23261D; --paper-soft:#2C3025;
-  --accent:#BC9165; --accent-deep:#CFA87C;
-  --line:#3C4133; --text:#E8E0D6; --text-soft:#A6906C;
-  --card-bg:#2B2F24; --card-border:#3E432F;
-  --asphalt:#514F4A; --asphalt-2:#43413D; --shoulder:#6E6046; --marking:#E8E0D6;
-  --stop:#C4674C; --warn:#D8A054; --go:#8B9670; --info:#6E8F9B;
-  --sign-ink:#20231A; --sign-face:#E8E0D6;
-  --shadow:0 18px 44px -26px rgba(0,0,0,.8);
-}
-
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
