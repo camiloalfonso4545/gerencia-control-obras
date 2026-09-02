@@ -1,6 +1,6 @@
 # La ruta del semestre
 
-Mapa navegable del curso **Gerencia y Control de Obras** — Ingeniería Civil, UPTC,
+Mapa navegable del curso **Gerencia y Control de Obras**: Ingeniería Civil, UPTC,
 período 2026-II.
 
 Cada clase es una parada sobre una vía: al acercarse aparecen el tema, el resumen
@@ -10,10 +10,10 @@ de lo visto, por qué importa y el material de apoyo descargable de esa sesión.
 
 ## Cómo se usa
 
-- **Vista libre** — arrastre para moverse por el mapa, rueda del mouse para acercar.
-- **Recorrido guiado** — las flechas llevan de una clase a la siguiente y encuadran
+- **Vista libre**: arrastre para moverse por el mapa, rueda del mouse para acercar.
+- **Recorrido guiado**: las flechas llevan de una clase a la siguiente y encuadran
   cada parada completa.
-- **Ajustar** — devuelve la vista a la ruta entera.
+- **Ajustar**: devuelve la vista a la ruta entera.
 
 ## Estructura
 
