@@ -7,116 +7,142 @@
 <meta name="description" content="Taller interactivo de cronograma: del paquete de trabajo al cronograma en Project. Gerencia y Control de Obras, UPTC 2026-II.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap">
 <style>
 :root{
-  --paper:#E5DDD1; --paper-soft:#DCD3C3; --accent:#7B5B3E; --accent-deep:#6A4E35;
-  --line:#CFC4B2; --text:#2E3226; --text-soft:#5E6350; --card-bg:#F4EFE6; --card-border:#D3C8B6;
-  --stop:#9C4A32; --warn:#C68A3E; --go:#67704F; --info:#4A6670;
-  --verde:#DCE5D4; --azul:#D6E1E6; --amarillo:#F3E6C4; --rojo:#F0D3C9;
-  --shadow:0 18px 44px -26px rgba(46,50,38,.45);
+  /* Sistema tomado de DESIGN.md (cuaderno de luz de dia) adaptado al taller:
+     lienzo celeste palido, tarjetas hueso sin sombra, tinta casi negra,
+     un solo boton denso y lavados pastel para las cuatro familias de actividades. */
+  --canvas:#EBF5FF; --card:#FAFDFF; --white:#FFFFFF; --mist:#F6F7F8;
+  --ink:#0A0D12; --charcoal:#181D27; --graphite:#535862; --fog:#6B7079;
+  --line:#DCE6F0; --accent:#0069E0; --accent-soft:#CCE7FF;
+  --lavender:#F1E6FF; --mint:#D3F6E3; --powder:#CCE7FF; --peach:#FFE3CF; --solar:#FFF2BE;
+  --ok:#1B7F4B; --ok-bg:#DDF3E6; --warn:#9A5B00; --warn-bg:#FFF2BE; --bad:#B42318; --bad-bg:#FDE4E1; --info:#0058B8; --info-bg:#E5F1FF;
+  --r-card:32px; --r-sm:16px; --r-pill:9999px;
+  --font:'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, monospace;
+  --dur:220ms; --ease:cubic-bezier(.16,1,.3,1);
   color-scheme:light;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0; background:var(--paper); color:var(--text); font-family:Onest,system-ui,-apple-system,Segoe UI,sans-serif; font-size:16px; line-height:1.55; display:flex; flex-direction:column; min-height:100vh}
-.mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums}
+body{margin:0; background:var(--canvas); color:var(--ink); font-family:var(--font); font-size:16px; line-height:1.5; letter-spacing:-0.01em; display:flex; flex-direction:column; min-height:100dvh; -webkit-font-smoothing:antialiased; touch-action:manipulation}
+.mono{font-family:var(--mono); font-variant-numeric:tabular-nums; letter-spacing:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent); outline-offset:3px; border-radius:6px}
+.skip{position:absolute; left:-999px; top:8px; background:var(--charcoal); color:#fff; padding:10px 16px; border-radius:var(--r-pill); z-index:100}
+.skip:focus{left:12px}
 /* barra */
-.topbar{display:flex; align-items:center; gap:14px; padding:11px 18px; border-bottom:1px solid var(--line); background:var(--paper); position:sticky; top:0; z-index:30}
-.topbar .k{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; color:var(--accent-deep)}
-.topbar h1{font-family:'Source Serif 4',Georgia,serif; font-weight:900; font-size:18px; margin:0; line-height:1.1; letter-spacing:-.01em}
-.brand{display:flex; flex-direction:column; gap:1px; min-width:0}
+.topbar{display:flex; align-items:center; gap:14px; padding:12px 20px; background:var(--canvas); position:sticky; top:0; z-index:30}
+.topbar .k{font-family:var(--mono); font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; color:var(--graphite)}
+.topbar h1{font-weight:500; font-size:20px; margin:0; line-height:1.1; letter-spacing:-0.02em; color:var(--ink)}
+.brand{display:flex; flex-direction:column; gap:2px; min-width:0}
 .brand a{color:inherit; text-decoration:none}
-.menu-btn{border:1px solid var(--card-border); background:var(--card-bg); border-radius:9px; width:40px; height:38px; cursor:pointer; display:grid; place-items:center; font-size:18px; color:var(--text)}
-.prog{margin-left:auto; display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--text-soft); white-space:nowrap}
-.prog .bar{width:120px; height:6px; border-radius:99px; background:var(--paper-soft); overflow:hidden}
-.prog .bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .3s}
+.menu-btn{border:0; background:var(--white); border-radius:var(--r-pill); width:44px; height:44px; cursor:pointer; display:grid; place-items:center; color:var(--ink); transition:background var(--dur) var(--ease), transform var(--dur) var(--ease)}
+.menu-btn:hover{background:var(--accent-soft)} .menu-btn:active{transform:scale(.96)}
+.prog{margin-left:auto; display:flex; align-items:center; gap:10px; font-family:var(--mono); font-size:.8rem; color:var(--graphite); white-space:nowrap}
+.prog .bar{width:140px; height:8px; border-radius:var(--r-pill); background:var(--white); overflow:hidden}
+.prog .bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .4s var(--ease)}
 /* cuerpo */
 .wrap{flex:1 1 auto; display:flex; min-height:0}
-.indice{width:290px; flex:0 0 auto; border-right:1px solid var(--line); background:var(--card-bg); padding:14px 10px; overflow-y:auto; transition:margin .2s}
-.indice.oculto{margin-left:-290px}
-.indice h2{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-soft); margin:8px 8px 6px}
-.indice button{display:flex; gap:9px; align-items:flex-start; width:100%; text-align:left; border:0; background:transparent; padding:7px 9px; border-radius:9px; cursor:pointer; font:inherit; font-size:14px; color:var(--text); line-height:1.3}
-.indice button:hover{background:var(--paper)}
-.indice button.activo{background:var(--paper-soft); font-weight:600}
-.indice button .pt{flex:0 0 auto; width:16px; height:16px; margin-top:2px; border-radius:99px; border:1.5px solid var(--card-border); display:grid; place-items:center; font-size:10px; color:#fff}
-.indice button.visto .pt{background:var(--go); border-color:var(--go)}
-.escena{flex:1 1 auto; min-width:0; overflow-y:auto; overflow-x:hidden; padding:26px 16px 40px; background:radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/34px 34px, var(--paper)}
-.tarj{max-width:920px; width:100%; margin:0 auto; min-width:0; background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; box-shadow:var(--shadow); padding:26px 30px 24px}
-.tarj .cab{font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-deep); font-weight:600; margin-bottom:6px}
-.tarj h2{font-family:'Source Serif 4',Georgia,serif; font-weight:900; font-size:27px; margin:0 0 12px; line-height:1.12; letter-spacing:-.012em; text-wrap:balance}
-.tarj h3{font-family:'Source Serif 4',Georgia,serif; font-weight:600; font-size:19px; margin:20px 0 8px}
-.tarj p{margin:0 0 10px}
-.tarj ul, .tarj ol{margin:0 0 12px; padding-left:22px}
-.tarj li{margin-bottom:5px}
-.pie-nav{max-width:920px; margin:18px auto 0; display:flex; justify-content:space-between; align-items:center; gap:10px}
-.btn{border:1px solid var(--card-border); background:var(--card-bg); color:var(--text); border-radius:9px; cursor:pointer; padding:9px 16px; font-size:14px; font-family:'IBM Plex Mono',monospace; transition:border-color .15s, background .15s}
-.btn:hover:not(:disabled){border-color:var(--accent)}
-.btn:disabled{opacity:.4; cursor:default}
-.btn.pri{background:var(--accent); color:#fff; border-color:var(--accent)}
-.btn.pri:hover:not(:disabled){background:var(--accent-deep)}
-.btn.peq{padding:5px 10px; font-size:12px}
-.paso{font-family:'IBM Plex Mono',monospace; font-size:.74rem; color:var(--text-soft); letter-spacing:.05em}
+.indice{width:300px; flex:0 0 auto; background:var(--canvas); padding:10px 12px 24px; overflow-y:auto; transition:margin var(--dur) var(--ease)}
+.indice.oculto{margin-left:-300px}
+.indice h2{font-family:var(--mono); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; color:var(--graphite); margin:14px 12px 6px; font-weight:500}
+.indice button{display:flex; gap:10px; align-items:center; width:100%; min-height:44px; text-align:left; border:0; background:transparent; padding:8px 12px; border-radius:var(--r-pill); cursor:pointer; font:inherit; font-size:15px; font-weight:500; color:var(--ink); line-height:1.25; transition:background var(--dur) var(--ease)}
+.indice button:hover{background:var(--white)}
+.indice button.activo{background:var(--charcoal); color:#fff}
+.indice button .pt{flex:0 0 auto; width:18px; height:18px; border-radius:var(--r-pill); border:1.5px solid var(--line); display:grid; place-items:center; font-size:11px; color:#fff; background:var(--white)}
+.indice button.visto .pt{background:var(--ok); border-color:var(--ok)}
+.indice button.activo .pt{border-color:rgba(255,255,255,.5)}
+.escena{flex:1 1 auto; min-width:0; overflow-y:auto; overflow-x:hidden; padding:16px 24px 48px; background:var(--canvas)}
+.tarj{max-width:960px; width:100%; margin:0 auto; min-width:0; background:var(--card); border-radius:var(--r-card); padding:40px; animation:entrar .35s var(--ease) both}
+@keyframes entrar{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
+.tarj .cab{font-family:var(--mono); font-size:.75rem; letter-spacing:.06em; text-transform:uppercase; color:var(--accent); font-weight:500; margin-bottom:8px}
+.tarj h2{font-weight:500; font-size:32px; margin:0 0 14px; line-height:1.2; letter-spacing:-0.02em; text-wrap:balance; color:var(--ink)}
+.tarj h3{font-weight:500; font-size:22px; margin:24px 0 8px; letter-spacing:-0.015em}
+.tarj p{margin:0 0 12px; color:var(--graphite)}
+.tarj p b, .tarj li b{color:var(--ink); font-weight:600}
+.tarj ul, .tarj ol{margin:0 0 12px; padding-left:22px; color:var(--graphite)}
+.tarj li{margin-bottom:6px}
+.pie-nav{max-width:960px; margin:18px auto 0; display:flex; justify-content:space-between; align-items:center; gap:10px}
+.btn{border:1px solid var(--line); background:var(--white); color:var(--ink); border-radius:var(--r-pill); cursor:pointer; padding:11px 22px; min-height:44px; font:inherit; font-size:15px; font-weight:500; letter-spacing:-0.01em; transition:background var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease)}
+.btn:hover:not(:disabled){border-color:var(--accent); background:var(--card)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn:disabled{opacity:.4; cursor:not-allowed}
+.btn.pri{background:var(--charcoal); color:#fff; border-color:var(--charcoal); box-shadow:0 1px 2px rgba(10,13,18,.5)}
+.btn.pri:hover:not(:disabled){background:var(--ink); border-color:var(--ink)}
+.btn.peq{padding:7px 14px; min-height:36px; font-size:13.5px}
+.paso{font-family:var(--mono); font-size:.8rem; color:var(--graphite); letter-spacing:0; text-align:center}
 /* piezas */
-.chip{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:99px; border:1px solid var(--card-border); color:var(--text-soft); display:inline-block}
-.caja{border:1px solid var(--card-border); border-radius:12px; padding:12px 14px; margin:10px 0; background:var(--paper)}
-.caja.ok{border-color:var(--go); background:color-mix(in srgb,var(--go) 10%, var(--paper))}
-.caja.mal{border-color:var(--stop); background:color-mix(in srgb,var(--stop) 9%, var(--paper))}
-.caja.ojo{border-color:var(--warn); background:color-mix(in srgb,var(--warn) 12%, var(--paper))}
-.caja.info{border-color:var(--info); background:color-mix(in srgb,var(--info) 9%, var(--paper))}
-.caja .t{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.13em; text-transform:uppercase; color:var(--text-soft); margin-bottom:5px; font-weight:600}
-table{border-collapse:collapse; width:100%; font-size:13.5px; margin:8px 0 12px}
-th,td{border:1px solid var(--card-border); padding:5px 7px; text-align:left; vertical-align:top}
-th{background:var(--paper-soft); font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--text-soft)}
-td.n{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums}
-tr.crit td{background:color-mix(in srgb,var(--stop) 12%, var(--card-bg))}
-tr.verde td{background:var(--verde)} tr.azul td{background:var(--azul)} tr.amar td{background:var(--amarillo)} tr.hito td{background:var(--rojo)}
-input[type=text], input[type=number], select, textarea{font:inherit; font-size:14px; padding:6px 8px; border:1px solid var(--card-border); border-radius:8px; background:#fff; color:var(--text); max-width:100%}
-input[type=number]{width:74px; font-family:'IBM Plex Mono',monospace}
-input.celda{width:54px; padding:3px 4px; text-align:center; font-family:'IBM Plex Mono',monospace}
-input.celda.mal{border-color:var(--stop); background:color-mix(in srgb,var(--stop) 14%, #fff)}
-input.celda.ok{border-color:var(--go); background:color-mix(in srgb,var(--go) 14%, #fff)}
-input.pred{width:150px; font-family:'IBM Plex Mono',monospace}
-textarea{width:100%; min-height:80px}
-label.f{display:block; margin:10px 0 4px; font-weight:600; font-size:14px}
-.fila{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0}
-.dos{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-@media (max-width:760px){ .dos{grid-template-columns:1fr} .indice{position:absolute; z-index:25; height:calc(100% - 61px); box-shadow:var(--shadow)} .tarj{padding:18px 14px} .tarj h2{font-size:22px} .prog .bar{display:none} .escena{padding:16px 10px 40px} }
-.tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:8px 0 12px}
-.tw table{margin:0; min-width:520px}
-.flip{perspective:900px; cursor:pointer; min-height:120px}
-.flip .cara{border:1px solid var(--card-border); border-radius:12px; padding:12px 14px; background:var(--paper); transition:transform .4s; transform-style:preserve-3d; position:relative; min-height:120px}
-.flip .cara .b{position:absolute; inset:0; padding:12px 14px; backface-visibility:hidden; transform:rotateY(180deg); background:color-mix(in srgb,var(--info) 12%, var(--paper)); border-radius:12px}
+.chip{font-family:var(--mono); font-size:.75rem; letter-spacing:.02em; padding:4px 12px; border-radius:var(--r-pill); background:var(--accent-soft); color:var(--ink); display:inline-block; font-weight:500}
+.caja{border-radius:var(--r-sm); padding:14px 18px; margin:12px 0; background:var(--mist); color:var(--ink)}
+.caja.ok{background:var(--ok-bg)} .caja.mal{background:var(--bad-bg)} .caja.ojo{background:var(--warn-bg)} .caja.info{background:var(--info-bg)}
+.caja .t{font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--graphite); margin-bottom:6px; font-weight:500}
+.caja.ok .t{color:var(--ok)} .caja.mal .t{color:var(--bad)} .caja.ojo .t{color:var(--warn)} .caja.info .t{color:var(--info)}
+.tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:8px 0 14px; border-radius:var(--r-sm)}
+.tw table{margin:0; min-width:560px}
+table{border-collapse:separate; border-spacing:0; width:100%; font-size:14px; margin:8px 0 14px; background:var(--white); border-radius:var(--r-sm); overflow:hidden}
+th,td{border-bottom:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{background:var(--mist); font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--graphite); font-weight:500}
+td.n{font-family:var(--mono); font-variant-numeric:tabular-nums}
+tr.crit td{background:var(--bad-bg)}
+tr.verde td{background:var(--mint)} tr.azul td{background:var(--powder)} tr.amar td{background:var(--solar)} tr.hito td{background:var(--lavender)}
+input[type=text], input[type=number], input[type=date], select, textarea{font:inherit; font-size:15px; padding:10px 14px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--white); color:var(--ink); max-width:100%; min-height:44px; transition:border-color var(--dur) var(--ease)}
+input:focus, select:focus, textarea:focus{border-color:var(--accent); outline:none; box-shadow:0 0 0 3px var(--accent-soft)}
+input[type=number]{width:96px; font-family:var(--mono)}
+input.celda{width:58px; min-height:36px; padding:5px 6px; text-align:center; font-family:var(--mono); border-radius:10px}
+input.celda.mal{border-color:var(--bad); background:var(--bad-bg)}
+input.celda.ok{border-color:var(--ok); background:var(--ok-bg)}
+input.pred{width:170px; min-height:38px; padding:6px 10px; font-family:var(--mono); border-radius:10px}
+textarea{width:100%; min-height:96px; resize:vertical}
+label.f{display:block; margin:14px 0 6px; font-weight:500; font-size:15px; color:var(--ink)}
+.fila{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0}
+.dos{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.flip{perspective:900px; cursor:pointer; min-height:132px; border:0; background:transparent; padding:0; text-align:left; font:inherit; width:100%; color:inherit}
+.flip .cara{border-radius:var(--r-sm); padding:16px 18px; background:var(--powder); transition:transform .45s var(--ease); transform-style:preserve-3d; position:relative; min-height:132px}
+.flip .cara .b{position:absolute; inset:0; padding:16px 18px; backface-visibility:hidden; transform:rotateY(180deg); background:var(--lavender); border-radius:var(--r-sm)}
 .flip .cara .a{backface-visibility:hidden}
 .flip.volteada .cara{transform:rotateY(180deg)}
-.flip .t{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.13em; text-transform:uppercase; color:var(--text-soft); margin-bottom:5px; font-weight:600}
-.tarjeta-ev{border:1.5px solid var(--card-border); border-radius:12px; padding:12px 14px; background:var(--paper); cursor:pointer; transition:border-color .15s}
-.tarjeta-ev.sel{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 10%, var(--paper))}
-.tarjeta-ev h4{margin:0 0 6px; font-family:'Source Serif 4',Georgia,serif; font-size:17px}
-.tarjeta-ev p{font-size:13.5px; margin:0; color:var(--text-soft)}
-.opc{display:block; width:100%; text-align:left; border:1px solid var(--card-border); background:var(--paper); border-radius:10px; padding:9px 12px; margin:6px 0; cursor:pointer; font:inherit; font-size:14.5px; color:var(--text)}
+.flip .t{font-family:var(--mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--graphite); margin-bottom:6px; font-weight:500}
+.flip p{margin:0; font-size:14px; color:var(--ink)}
+.tarjeta-ev{border:2px solid transparent; border-radius:var(--r-sm); padding:16px 18px; background:var(--white); cursor:pointer; transition:border-color var(--dur) var(--ease), background var(--dur) var(--ease)}
+.tarjeta-ev:hover{border-color:var(--accent-soft)}
+.tarjeta-ev.sel{border-color:var(--accent); background:var(--info-bg)}
+.tarjeta-ev h4{margin:0 0 6px; font-weight:500; font-size:18px; letter-spacing:-0.015em}
+.tarjeta-ev p{font-size:14px; margin:0; color:var(--graphite)}
+.opc{display:block; width:100%; text-align:left; border:1px solid var(--line); background:var(--white); border-radius:var(--r-sm); padding:12px 16px; min-height:44px; margin:8px 0; cursor:pointer; font:inherit; font-size:15px; color:var(--ink); transition:border-color var(--dur) var(--ease), background var(--dur) var(--ease)}
 .opc:hover{border-color:var(--accent)}
-.opc.ok{border-color:var(--go); background:color-mix(in srgb,var(--go) 14%, var(--paper))}
-.opc.mal{border-color:var(--stop); background:color-mix(in srgb,var(--stop) 12%, var(--paper))}
-.par{display:grid; grid-template-columns:1fr 1fr; gap:8px}
-.ficha{border:1px solid var(--card-border); border-radius:10px; padding:8px 10px; background:var(--paper); cursor:pointer; font-size:13.5px; min-height:48px}
-.ficha.sel{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%, var(--paper))}
-.ficha.hecha{border-color:var(--go); background:color-mix(in srgb,var(--go) 14%, var(--paper)); cursor:default}
-.red{overflow:auto; border:1px solid var(--card-border); border-radius:12px; background:#fff; margin:8px 0}
+.opc.ok{border-color:var(--ok); background:var(--ok-bg)}
+.opc.mal{border-color:var(--bad); background:var(--bad-bg)}
+.par{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.ficha{border:1px solid var(--line); border-radius:var(--r-sm); padding:10px 14px; background:var(--white); cursor:pointer; font-size:14px; min-height:48px; display:flex; align-items:center; transition:border-color var(--dur) var(--ease), background var(--dur) var(--ease)}
+.ficha:hover{border-color:var(--accent)}
+.ficha.sel{border-color:var(--accent); background:var(--info-bg)}
+.ficha.mal{border-color:var(--bad); background:var(--bad-bg)}
+.ficha.hecha{border-color:transparent; background:var(--mint); cursor:default}
+.red{overflow:auto; border-radius:var(--r-sm); background:var(--white); margin:8px 0}
 .red svg{display:block}
-.leyenda{display:flex; gap:12px; flex-wrap:wrap; font-size:12.5px; color:var(--text-soft); margin:4px 0 10px}
-.leyenda i{display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:4px; border:1px solid var(--card-border)}
-.sobre{border:2px dashed var(--accent); border-radius:14px; padding:14px; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.8rem; color:var(--accent-deep); background:var(--paper)}
-.sello{display:inline-block; border:2px solid var(--stop); color:var(--stop); border-radius:6px; padding:2px 8px; transform:rotate(-6deg); font-weight:600; letter-spacing:.1em}
+.leyenda{display:flex; gap:12px; flex-wrap:wrap; font-size:13px; color:var(--graphite); margin:4px 0 12px}
+.leyenda i{display:inline-block; width:14px; height:14px; border-radius:4px; vertical-align:-2px; margin-right:5px; border:1px solid var(--line)}
+.sobre{border:2px dashed var(--accent); border-radius:var(--r-sm); padding:18px; text-align:center; font-family:var(--mono); font-size:.85rem; color:var(--ink); background:var(--white)}
+.sello{display:inline-block; border:2px solid var(--bad); color:var(--bad); border-radius:6px; padding:2px 8px; transform:rotate(-6deg); font-weight:600; letter-spacing:.1em}
 .oculto{display:none !important}
-.pequeno{font-size:13px; color:var(--text-soft)}
-.pie{border-top:1px solid var(--line); padding:9px 18px; font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--text-soft); letter-spacing:.05em; display:flex; gap:18px; flex-wrap:wrap}
-@media print{ .topbar,.indice,.pie-nav,.pie,.menu-btn{display:none !important} .escena{overflow:visible; background:#fff; padding:0} .tarj{box-shadow:none; border:0} }
+.pequeno{font-size:14px; color:var(--graphite)}
+.pie{padding:12px 20px 18px; font-family:var(--mono); font-size:.75rem; color:var(--graphite); display:flex; gap:18px; flex-wrap:wrap}
+@media (max-width:760px){
+  .dos,.par{grid-template-columns:1fr}
+  .indice{position:absolute; z-index:25; height:calc(100% - 68px); box-shadow:0 14px 20px 4px rgba(4,69,144,.08); background:var(--card); border-radius:0 var(--r-sm) var(--r-sm) 0}
+  .tarj{padding:22px 18px; border-radius:24px} .tarj h2{font-size:24px} .prog .bar{display:none} .escena{padding:12px 12px 40px} .topbar h1{font-size:17px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+@media print{ .topbar,.indice,.pie-nav,.pie,.menu-btn{display:none !important} .escena{overflow:visible; background:#fff; padding:0} .tarj{border:0} }
 </style>
 </head>
 <body>
+<a class="skip" href="#escena">Ir al contenido</a>
 <div class="topbar">
-  <button class="menu-btn" id="menu" aria-label="Índice">☰</button>
+  <button class="menu-btn" id="menu" aria-label="Mostrar u ocultar el índice" aria-expanded="true" aria-controls="indice"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
   <div class="brand">
     <span class="k">Gerencia y Control de Obras · UPTC 2026-II · Taller 1</span>
     <h1><a href="index.html" title="Volver a la ruta del semestre">Cinco meses en una pared</a></h1>
@@ -125,7 +151,7 @@ label.f{display:block; margin:10px 0 4px; font-weight:600; font-size:14px}
 </div>
 <div class="wrap">
   <nav class="indice" id="indice" aria-label="Índice del taller"></nav>
-  <main class="escena" id="escena"></main>
+  <main class="escena" id="escena" tabindex="-1"></main>
 </div>
 <div class="pie"><span>Texto base · Guía del PMBOK® 8.ª ed. (PMI, 2025)</span><span>El progreso se guarda en este navegador</span><span>Docente: Jorge Andrés Sarmiento Rojas</span></div>
 
@@ -322,7 +348,7 @@ ${[['Objeto','Puente peatonal de 24 m de luz en estructura metálica, sobre estr
    ['Exclusiones','Iluminación, adquisición predial y mantenimiento posterior al recibo.'],
    ['Jornada','Lunes a viernes, de 7:00 a 12:00 y de 13:00 a 16:00. Ocho horas. No se trabaja sábados, domingos ni festivos.'],
    ['Recursos que limitan','Una sola retroexcavadora; una sola cuadrilla de accesos; grúa alquilada por días que se reserva con dos semanas de anticipación; estructura fabricada en un taller de Tunja.']]
- .map(([a,b])=>`<div class="flip" onclick="this.classList.toggle('volteada')"><div class="cara"><div class="a"><div class="t">${a}</div><p class="pequeno">Toque para ver</p></div><div class="b"><div class="t">${a}</div><p style="font-size:13.5px">${b}</p></div></div></div>`).join('')}
+ .map(([a,b])=>`<button type="button" class="flip" aria-pressed="false" onclick="this.classList.toggle('volteada'); this.setAttribute('aria-pressed', this.classList.contains('volteada'))"><div class="cara"><div class="a"><div class="t">${a}</div><p class="pequeno">Toque para ver</p></div><div class="b"><div class="t">${a}</div><p>${b}</p></div></div></button>`).join('')}
 </div>
 <p style="margin-top:12px"><b>Criterio de recibo:</b> prueba de carga satisfactoria con la interventoría y acta de recibo firmada. Esa fecha es la que se compara contra el plazo.</p>`;
 V.reto = ()=>`<div class="cab">Antes de empezar</div><h2>Lo que se entrega</h2>
@@ -376,7 +402,7 @@ V['pared-intro'] = ()=>`<div class="cab">Bloque 2 · 55 minutos</div><h2>Hacia a
 <p>Una nota por actividad: verde para concreto y movimiento de tierra, azul para estructura metálica, amarilla para gerencia, preliminares y entrega. Los hitos van en rojo. Escriban en cada nota el id, el nombre corto y la duración, y dejen espacio para cuatro números.</p>
 <p>Peguen primero el hito «Puente en servicio» en el extremo derecho de la pared y pregúntense qué tiene que estar terminado justo antes. Peguen esa actividad y vuelvan a preguntar. Así, de derecha a izquierda, hasta el acta de inicio. Es la forma en que se planifica por fases en el sistema Last Planner, que la Guía del PMBOK 8 recoge en la página 62 de la edición impresa, y sirve porque obliga a pensar en lo que cada actividad necesita recibir.</p>
 <p>Casi todas las relaciones son fin a inicio. Si necesitan un adelanto o un retraso, escríbanlo sobre la flecha con su justificación. Una dependencia discrecional, como que el acceso derecho vaya después del izquierdo por tener una sola cuadrilla, se marca con línea punteada.</p>
-<div class="leyenda"><span><i style="background:var(--verde)"></i>Concreto y tierra</span><span><i style="background:var(--azul)"></i>Estructura metálica</span><span><i style="background:var(--amarillo)"></i>Gerencia, preliminares, entrega</span><span><i style="background:var(--rojo)"></i>Hitos</span></div>
+<div class="leyenda"><span><i style="background:var(--mint)"></i>Concreto y tierra</span><span><i style="background:var(--powder)"></i>Estructura metálica</span><span><i style="background:var(--solar)"></i>Gerencia, preliminares, entrega</span><span><i style="background:var(--lavender)"></i>Hitos</span></div>
 <p>En la siguiente pantalla van a copiar la lógica de la pared para que la página la revise contra los hechos del catálogo.</p>`;
 V.logica = ()=>`<div class="cab">Bloque 2</div><h2>La lógica</h2>
 <p>Escriban las predecesoras de cada actividad tal como quedaron en la pared, separadas por comas. Un retraso se escribe <span class="mono">A11+2</span>; un comienzo a comienzo, <span class="mono">A17SS+2</span>. La página no les dice la lógica: solo les avisa cuando una flecha viola un hecho de la obra o cuando la red se muerde la cola.</p>
@@ -401,7 +427,7 @@ V.red = ()=>{
   if(!r) return `<div class="cab">Bloque 2</div><h2>Ver la red</h2><div class="caja mal">La red tiene un ciclo o está incompleta.</div>`;
   return `<div class="cab">Bloque 2</div><h2>Ver la red</h2>
 <p>Esta es la red con la lógica que ustedes escribieron, dibujada por niveles. La ruta crítica va en rojo. Compárenla con la pared: si la pared dice otra cosa, una de las dos está mal.</p>
-<div class="leyenda"><span><i style="background:var(--verde)"></i>Concreto y tierra</span><span><i style="background:var(--azul)"></i>Estructura metálica</span><span><i style="background:var(--amarillo)"></i>Gerencia, preliminares, entrega</span><span><i style="background:var(--rojo)"></i>Hitos</span><span><i style="background:#fff;border-color:var(--stop);border-width:2px"></i>Ruta crítica</span></div>
+<div class="leyenda"><span><i style="background:var(--mint)"></i>Concreto y tierra</span><span><i style="background:var(--powder)"></i>Estructura metálica</span><span><i style="background:var(--solar)"></i>Gerencia, preliminares, entrega</span><span><i style="background:var(--lavender)"></i>Hitos</span><span><i style="background:#fff;border-color:var(--bad);border-width:2px"></i>Ruta crítica</span></div>
 <div class="red">${dibujarRed(L, r)}</div>
 <div class="caja"><div class="t">Con su lógica</div>Recibo en el día hábil <b>${r.recibo}</b>: ${num(Math.round(r.recibo/5*10)/10)} semanas de trabajo. Ruta crítica: <span class="mono">${r.rc.join(' → ')}</span>.<br>El plazo del contrato son cinco meses, cerca de 105 días hábiles: margen aproximado de <b>${105-r.recibo}</b> días hábiles sin contar festivos.</div>
 <p class="pequeno">Pregunta para la bitácora: ¿por dónde pasa la ruta crítica, por el concreto o por el acero? ¿Se lo esperaban?</p>`;
@@ -512,7 +538,7 @@ V.emparejar = ()=>{
 V.bitacora = ()=>`<div class="cab">Bloque 5</div><h2>La bitácora</h2>
 <p>La página junta lo que escribieron: la apuesta, la EDT, la lógica, la ruta crítica, PERT, el cotejo, las tarjetas con sus predicciones y decisiones, y el cierre. Descárguenla, revísenla, completen lo que falte (máximo dos páginas) y súbanla a Moodle con el .mpp, el Gantt en PDF y la foto de la pared.</p>
 <div class="fila"><button class="btn pri" id="descargar">Descargar la bitácora (.txt)</button><button class="btn" id="imprimir">Imprimir esta página</button><button class="btn" id="borrar">Borrar todo y empezar de nuevo</button></div>
-<pre id="bit-prev" class="mono" style="white-space:pre-wrap;font-size:12px;background:var(--paper);border:1px solid var(--card-border);border-radius:10px;padding:12px;max-height:420px;overflow:auto"></pre>`;
+<pre id="bit-prev" class="mono" style="white-space:pre-wrap;font-size:13px;background:var(--white);border-radius:16px;padding:16px;max-height:420px;overflow:auto"></pre>`;
 
 /* ============================================================ red SVG */
 function dibujarRed(L, r){
@@ -520,13 +546,13 @@ function dibujarRed(L, r){
   const cols = {}; ord.forEach(id=>{ (cols[nivel[id]] = cols[nivel[id]]||[]).push(id); });
   const W=150, Hh=64, bw=126, bh=48; const nCols = Object.keys(cols).length; const maxRows = Math.max(...Object.values(cols).map(c=>c.length));
   const pos = {}; Object.keys(cols).forEach(k=>{ cols[k].forEach((id,j)=>{ pos[id] = {x: 24 + k*W, y: 24 + j*Hh}; }); });
-  const fill = {verde:'#DCE5D4', azul:'#D6E1E6', amar:'#F3E6C4', hito:'#F0D3C9'};
+  const fill = {verde:'#D3F6E3', azul:'#CCE7FF', amar:'#FFF2BE', hito:'#F1E6FF'};
   const CR = new Set(r.rc.concat(r.H['A1']===0?['A1']:[]));
-  let s = `<svg width="${24+nCols*W+20}" height="${24+maxRows*Hh+20}" viewBox="0 0 ${24+nCols*W+20} ${24+maxRows*Hh+20}" font-family="IBM Plex Mono, monospace"><defs><marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8a8479"/></marker><marker id="flc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#9C4A32"/></marker></defs>`;
+  let s = `<svg width="${24+nCols*W+20}" height="${24+maxRows*Hh+20}" viewBox="0 0 ${24+nCols*W+20} ${24+maxRows*Hh+20}" font-family="Inter, IBM Plex Mono, sans-serif"><defs><marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#93979F"/></marker><marker id="flc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#B42318"/></marker></defs>`;
   for(const id of ord) for(const p of (L[id]||[])){ const a=pos[p.id], b=pos[id]; if(!a||!b) continue; const crit = CR.has(id) && CR.has(p.id) && (p.tipo==='SS' ? r.ES[id]===r.ES[p.id]+p.lag : r.ES[id]===r.EF[p.id]+p.lag);
-    s += `<path d="M${a.x+bw} ${a.y+bh/2} C ${a.x+bw+30} ${a.y+bh/2}, ${b.x-30} ${b.y+bh/2}, ${b.x} ${b.y+bh/2}" fill="none" stroke="${crit?'#9C4A32':'#8a8479'}" stroke-width="${crit?2.4:1.2}" marker-end="url(#${crit?'flc':'fl'})" ${p.tipo==='SS'?'stroke-dasharray="4 3"':''}/>`; }
+    s += `<path d="M${a.x+bw} ${a.y+bh/2} C ${a.x+bw+30} ${a.y+bh/2}, ${b.x-30} ${b.y+bh/2}, ${b.x} ${b.y+bh/2}" fill="none" stroke="${crit?'#B42318':'#93979F'}" stroke-width="${crit?2.4:1.2}" marker-end="url(#${crit?'flc':'fl'})" ${p.tipo==='SS'?'stroke-dasharray="4 3"':''}/>`; }
   for(const id of ord){ const a = ACT[IDX[id]], q = pos[id]; const crit = CR.has(id);
-    s += `<g><rect x="${q.x}" y="${q.y}" width="${bw}" height="${bh}" rx="7" fill="${fill[filaClase(a)]}" stroke="${crit?'#9C4A32':'#B9AE9B'}" stroke-width="${crit?2.5:1}"/><text x="${q.x+7}" y="${q.y+15}" font-size="11" font-weight="600" fill="#2E3226">${id} <tspan font-weight="400" fill="#5E6350">${r.dur[id]}d</tspan></text><text x="${q.x+7}" y="${q.y+29}" font-size="9.5" fill="#2E3226">${esc(a.c.length>22?a.c.slice(0,21)+'…':a.c)}</text><text x="${q.x+7}" y="${q.y+42}" font-size="9.5" fill="#5E6350">${r.ES[id]}·${r.EF[id]}  H ${r.H[id]}</text></g>`; }
+    s += `<g><rect x="${q.x}" y="${q.y}" width="${bw}" height="${bh}" rx="7" fill="${fill[filaClase(a)]}" stroke="${crit?'#B42318':'#DCE6F0'}" stroke-width="${crit?2.5:1}"/><text x="${q.x+7}" y="${q.y+15}" font-size="11" font-weight="600" fill="#0A0D12">${id} <tspan font-weight="400" fill="#535862">${r.dur[id]}d</tspan></text><text x="${q.x+7}" y="${q.y+29}" font-size="9.5" fill="#0A0D12">${esc(a.c.length>22?a.c.slice(0,21)+'…':a.c)}</text><text x="${q.x+7}" y="${q.y+42}" font-size="9.5" fill="#535862">${r.ES[id]}·${r.EF[id]}  H ${r.H[id]}</text></g>`; }
   return s + '</svg>';
 }
 
@@ -535,7 +561,7 @@ function render(){
   const id = SLIDES[cur]; if(!S.visto.includes(id)) { S.visto.push(id); guardar(); }
   location.hash = id;
   const esc_ = document.getElementById('escena');
-  esc_.innerHTML = `<div class="tarj" id="tarj">${V[id]()}</div><div class="pie-nav"><button class="btn" id="ant" ${cur===0?'disabled':''}>← Anterior</button><span class="paso">${cur+1} · ${SLIDES.length} · ${TIT[id]}</span><button class="btn pri" id="sig" ${cur===SLIDES.length-1?'disabled':''}>Siguiente →</button></div>`;
+  esc_.innerHTML = `<div class="tarj" id="tarj">${V[id]()}</div><div class="pie-nav"><button class="btn" id="ant" ${cur===0?'disabled':''} aria-label="Pantalla anterior">← Anterior</button><span class="paso">${cur+1} · ${SLIDES.length} · ${TIT[id]}</span><button class="btn pri" id="sig" ${cur===SLIDES.length-1?'disabled':''} aria-label="Pantalla siguiente">Siguiente →</button></div>`;
   esc_.querySelectorAll('.tarj table').forEach(t=>{ const w=document.createElement('div'); w.className='tw'; t.parentNode.insertBefore(w,t); w.appendChild(t); });
   esc_.scrollTop = 0;
   document.getElementById('ant').onclick = ()=>{ cur--; render(); };
@@ -606,8 +632,8 @@ function bitacora(){
   li.push('9. PREGUNTAS DE CIERRE: '+QUIZ.map((q,i)=>S.quiz[i]===undefined?'sin responder':(S.quiz[i]===q.c?'bien':'mal')).join(' · '));
   return li.join('\n');
 }
-document.getElementById('menu').onclick=()=>document.getElementById('indice').classList.toggle('oculto');
-if(window.innerWidth<760) document.getElementById('indice').classList.add('oculto');
+document.getElementById('menu').onclick=()=>{ const n=document.getElementById('indice'); n.classList.toggle('oculto'); document.getElementById('menu').setAttribute('aria-expanded', !n.classList.contains('oculto')); };
+if(window.innerWidth<760){ document.getElementById('indice').classList.add('oculto'); document.getElementById('menu').setAttribute('aria-expanded','false'); }
 window.addEventListener('hashchange', ()=>{ const i = SLIDES.indexOf(location.hash.slice(1)); if(i>=0 && i!==cur){ cur=i; render(); } });
 render();
 </script>
