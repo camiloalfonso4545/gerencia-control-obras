@@ -18,9 +18,14 @@ de lo visto, por qué importa y el material de apoyo descargable de esa sesión.
 ## Estructura
 
 ```
-index.html      la página completa: estructura, estilos y lógica en un solo archivo
-recursos/       los archivos que los estudiantes descargan desde la página
+index.html               la página completa: estructura, estilos y lógica en un solo archivo
+taller-cronograma.html   Taller 1 «Cinco meses en una pared», versión interactiva; se enlaza desde el panel de plataformas
+recursos/                los archivos que los estudiantes descargan desde la página
 ```
+
+El taller interactivo guarda el avance de cada grupo en el navegador (`localStorage`), revisa la lógica
+de precedencias contra los hechos del proyecto, comprueba los recorridos de ida y de vuelta, dibuja la
+red, calcula la fecha que debe dar Project con el calendario colombiano de 2027 y arma la bitácora.
 
 ## Cómo se actualiza
 

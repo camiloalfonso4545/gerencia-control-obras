@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cinco meses en una pared</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Taller interactivo de cronograma: del paquete de trabajo al cronograma en Project. Gerencia y Control de Obras, UPTC 2026-II.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,900&display=swap">
+<style>
+:root{
+  --paper:#E5DDD1; --paper-soft:#DCD3C3; --accent:#7B5B3E; --accent-deep:#6A4E35;
+  --line:#CFC4B2; --text:#2E3226; --text-soft:#5E6350; --card-bg:#F4EFE6; --card-border:#D3C8B6;
+  --stop:#9C4A32; --warn:#C68A3E; --go:#67704F; --info:#4A6670;
+  --verde:#DCE5D4; --azul:#D6E1E6; --amarillo:#F3E6C4; --rojo:#F0D3C9;
+  --shadow:0 18px 44px -26px rgba(46,50,38,.45);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; background:var(--paper); color:var(--text); font-family:Onest,system-ui,-apple-system,Segoe UI,sans-serif; font-size:16px; line-height:1.55; display:flex; flex-direction:column; min-height:100vh}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums}
+/* barra */
+.topbar{display:flex; align-items:center; gap:14px; padding:11px 18px; border-bottom:1px solid var(--line); background:var(--paper); position:sticky; top:0; z-index:30}
+.topbar .k{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; color:var(--accent-deep)}
+.topbar h1{font-family:'Source Serif 4',Georgia,serif; font-weight:900; font-size:18px; margin:0; line-height:1.1; letter-spacing:-.01em}
+.brand{display:flex; flex-direction:column; gap:1px; min-width:0}
+.brand a{color:inherit; text-decoration:none}
+.menu-btn{border:1px solid var(--card-border); background:var(--card-bg); border-radius:9px; width:40px; height:38px; cursor:pointer; display:grid; place-items:center; font-size:18px; color:var(--text)}
+.prog{margin-left:auto; display:flex; align-items:center; gap:10px; font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--text-soft); white-space:nowrap}
+.prog .bar{width:120px; height:6px; border-radius:99px; background:var(--paper-soft); overflow:hidden}
+.prog .bar i{display:block; height:100%; background:var(--accent); width:0; transition:width .3s}
+/* cuerpo */
+.wrap{flex:1 1 auto; display:flex; min-height:0}
+.indice{width:290px; flex:0 0 auto; border-right:1px solid var(--line); background:var(--card-bg); padding:14px 10px; overflow-y:auto; transition:margin .2s}
+.indice.oculto{margin-left:-290px}
+.indice h2{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--text-soft); margin:8px 8px 6px}
+.indice button{display:flex; gap:9px; align-items:flex-start; width:100%; text-align:left; border:0; background:transparent; padding:7px 9px; border-radius:9px; cursor:pointer; font:inherit; font-size:14px; color:var(--text); line-height:1.3}
+.indice button:hover{background:var(--paper)}
+.indice button.activo{background:var(--paper-soft); font-weight:600}
+.indice button .pt{flex:0 0 auto; width:16px; height:16px; margin-top:2px; border-radius:99px; border:1.5px solid var(--card-border); display:grid; place-items:center; font-size:10px; color:#fff}
+.indice button.visto .pt{background:var(--go); border-color:var(--go)}
+.escena{flex:1 1 auto; min-width:0; overflow-y:auto; overflow-x:hidden; padding:26px 16px 40px; background:radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/34px 34px, var(--paper)}
+.tarj{max-width:920px; width:100%; margin:0 auto; min-width:0; background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; box-shadow:var(--shadow); padding:26px 30px 24px}
+.tarj .cab{font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-deep); font-weight:600; margin-bottom:6px}
+.tarj h2{font-family:'Source Serif 4',Georgia,serif; font-weight:900; font-size:27px; margin:0 0 12px; line-height:1.12; letter-spacing:-.012em; text-wrap:balance}
+.tarj h3{font-family:'Source Serif 4',Georgia,serif; font-weight:600; font-size:19px; margin:20px 0 8px}
+.tarj p{margin:0 0 10px}
+.tarj ul, .tarj ol{margin:0 0 12px; padding-left:22px}
+.tarj li{margin-bottom:5px}
+.pie-nav{max-width:920px; margin:18px auto 0; display:flex; justify-content:space-between; align-items:center; gap:10px}
+.btn{border:1px solid var(--card-border); background:var(--card-bg); color:var(--text); border-radius:9px; cursor:pointer; padding:9px 16px; font-size:14px; font-family:'IBM Plex Mono',monospace; transition:border-color .15s, background .15s}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.4; cursor:default}
+.btn.pri{background:var(--accent); color:#fff; border-color:var(--accent)}
+.btn.pri:hover:not(:disabled){background:var(--accent-deep)}
+.btn.peq{padding:5px 10px; font-size:12px}
+.paso{font-family:'IBM Plex Mono',monospace; font-size:.74rem; color:var(--text-soft); letter-spacing:.05em}
+/* piezas */
+.chip{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:99px; border:1px solid var(--card-border); color:var(--text-soft); display:inline-block}
+.caja{border:1px solid var(--card-border); border-radius:12px; padding:12px 14px; margin:10px 0; background:var(--paper)}
+.caja.ok{border-color:var(--go); background:color-mix(in srgb,var(--go) 10%, var(--paper))}
+.caja.mal{border-color:var(--stop); background:color-mix(in srgb,var(--stop) 9%, var(--paper))}
+.caja.ojo{border-color:var(--warn); background:color-mix(in srgb,var(--warn) 12%, var(--paper))}
+.caja.info{border-color:var(--info); background:color-mix(in srgb,var(--info) 9%, var(--paper))}
+.caja .t{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.13em; text-transform:uppercase; color:var(--text-soft); margin-bottom:5px; font-weight:600}
+table{border-collapse:collapse; width:100%; font-size:13.5px; margin:8px 0 12px}
+th,td{border:1px solid var(--card-border); padding:5px 7px; text-align:left; vertical-align:top}
+th{background:var(--paper-soft); font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.08em; text-transform:uppercase; color:var(--text-soft)}
+td.n{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums}
+tr.crit td{background:color-mix(in srgb,var(--stop) 12%, var(--card-bg))}
+tr.verde td{background:var(--verde)} tr.azul td{background:var(--azul)} tr.amar td{background:var(--amarillo)} tr.hito td{background:var(--rojo)}
+input[type=text], input[type=number], select, textarea{font:inherit; font-size:14px; padding:6px 8px; border:1px solid var(--card-border); border-radius:8px; background:#fff; color:var(--text); max-width:100%}
+input[type=number]{width:74px; font-family:'IBM Plex Mono',monospace}
+input.celda{width:54px; padding:3px 4px; text-align:center; font-family:'IBM Plex Mono',monospace}
+input.celda.mal{border-color:var(--stop); background:color-mix(in srgb,var(--stop) 14%, #fff)}
+input.celda.ok{border-color:var(--go); background:color-mix(in srgb,var(--go) 14%, #fff)}
+input.pred{width:150px; font-family:'IBM Plex Mono',monospace}
+textarea{width:100%; min-height:80px}
+label.f{display:block; margin:10px 0 4px; font-weight:600; font-size:14px}
+.fila{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0}
+.dos{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+@media (max-width:760px){ .dos{grid-template-columns:1fr} .indice{position:absolute; z-index:25; height:calc(100% - 61px); box-shadow:var(--shadow)} .tarj{padding:18px 14px} .tarj h2{font-size:22px} .prog .bar{display:none} .escena{padding:16px 10px 40px} }
+.tw{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:8px 0 12px}
+.tw table{margin:0; min-width:520px}
+.flip{perspective:900px; cursor:pointer; min-height:120px}
+.flip .cara{border:1px solid var(--card-border); border-radius:12px; padding:12px 14px; background:var(--paper); transition:transform .4s; transform-style:preserve-3d; position:relative; min-height:120px}
+.flip .cara .b{position:absolute; inset:0; padding:12px 14px; backface-visibility:hidden; transform:rotateY(180deg); background:color-mix(in srgb,var(--info) 12%, var(--paper)); border-radius:12px}
+.flip .cara .a{backface-visibility:hidden}
+.flip.volteada .cara{transform:rotateY(180deg)}
+.flip .t{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.13em; text-transform:uppercase; color:var(--text-soft); margin-bottom:5px; font-weight:600}
+.tarjeta-ev{border:1.5px solid var(--card-border); border-radius:12px; padding:12px 14px; background:var(--paper); cursor:pointer; transition:border-color .15s}
+.tarjeta-ev.sel{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 10%, var(--paper))}
+.tarjeta-ev h4{margin:0 0 6px; font-family:'Source Serif 4',Georgia,serif; font-size:17px}
+.tarjeta-ev p{font-size:13.5px; margin:0; color:var(--text-soft)}
+.opc{display:block; width:100%; text-align:left; border:1px solid var(--card-border); background:var(--paper); border-radius:10px; padding:9px 12px; margin:6px 0; cursor:pointer; font:inherit; font-size:14.5px; color:var(--text)}
+.opc:hover{border-color:var(--accent)}
+.opc.ok{border-color:var(--go); background:color-mix(in srgb,var(--go) 14%, var(--paper))}
+.opc.mal{border-color:var(--stop); background:color-mix(in srgb,var(--stop) 12%, var(--paper))}
+.par{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+.ficha{border:1px solid var(--card-border); border-radius:10px; padding:8px 10px; background:var(--paper); cursor:pointer; font-size:13.5px; min-height:48px}
+.ficha.sel{border-color:var(--accent); background:color-mix(in srgb,var(--accent) 12%, var(--paper))}
+.ficha.hecha{border-color:var(--go); background:color-mix(in srgb,var(--go) 14%, var(--paper)); cursor:default}
+.red{overflow:auto; border:1px solid var(--card-border); border-radius:12px; background:#fff; margin:8px 0}
+.red svg{display:block}
+.leyenda{display:flex; gap:12px; flex-wrap:wrap; font-size:12.5px; color:var(--text-soft); margin:4px 0 10px}
+.leyenda i{display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:4px; border:1px solid var(--card-border)}
+.sobre{border:2px dashed var(--accent); border-radius:14px; padding:14px; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:.8rem; color:var(--accent-deep); background:var(--paper)}
+.sello{display:inline-block; border:2px solid var(--stop); color:var(--stop); border-radius:6px; padding:2px 8px; transform:rotate(-6deg); font-weight:600; letter-spacing:.1em}
+.oculto{display:none !important}
+.pequeno{font-size:13px; color:var(--text-soft)}
+.pie{border-top:1px solid var(--line); padding:9px 18px; font-family:'IBM Plex Mono',monospace; font-size:.66rem; color:var(--text-soft); letter-spacing:.05em; display:flex; gap:18px; flex-wrap:wrap}
+@media print{ .topbar,.indice,.pie-nav,.pie,.menu-btn{display:none !important} .escena{overflow:visible; background:#fff; padding:0} .tarj{box-shadow:none; border:0} }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menu" aria-label="Índice">☰</button>
+  <div class="brand">
+    <span class="k">Gerencia y Control de Obras · UPTC 2026-II · Taller 1</span>
+    <h1><a href="index.html" title="Volver a la ruta del semestre">Cinco meses en una pared</a></h1>
+  </div>
+  <div class="prog"><span id="pct">0 %</span><div class="bar"><i id="barra"></i></div></div>
+</div>
+<div class="wrap">
+  <nav class="indice" id="indice" aria-label="Índice del taller"></nav>
+  <main class="escena" id="escena"></main>
+</div>
+<div class="pie"><span>Texto base · Guía del PMBOK® 8.ª ed. (PMI, 2025)</span><span>El progreso se guarda en este navegador</span><span>Docente: Jorge Andrés Sarmiento Rojas</span></div>
+
+<script>
+/* ============================================================ datos del proyecto */
+const INICIO = new Date(2027, 2, 1); // lunes 1 de marzo de 2027
+const FESTIVOS = ['2027-03-22','2027-03-25','2027-03-26','2027-05-01','2027-05-10','2027-05-31','2027-06-07','2027-07-05','2027-07-20','2027-08-07','2027-08-16'];
+// id, nombre corto, nombre largo, duración (días hábiles), tipo, rama, color, pista
+const ACT = [
+ {id:'A1', c:'Acta de inicio (hito)', n:'Acta de inicio', d:0, tipo:'hito', rama:'1.1', col:'hito', pista:'Lunes 1 de marzo de 2027.'},
+ {id:'A2', c:'Localización y replanteo', n:'Localización y replanteo', d:3, tipo:'n', rama:'1.2', col:'amar', pista:''},
+ {id:'A3', c:'Campamento y cerramiento', n:'Campamento, cerramiento y señalización temporal', d:4, tipo:'n', rama:'1.2', col:'amar', pista:''},
+ {id:'A4', c:'Planos de taller y aprobación', n:'Planos de taller de la estructura metálica y aprobación de la interventoría', d:10, tipo:'n', rama:'1.4', col:'azul', pista:'La interventoría no aprueba planos sin acta de inicio.'},
+ {id:'A5', c:'Compra y llegada del acero', n:'Compra y llegada del acero estructural al taller', d:15, tipo:'n', rama:'1.4', col:'azul', pista:'El proveedor solo corta acero con planos aprobados.'},
+ {id:'A6', c:'Fabricación en taller', n:'Fabricación de la estructura en taller (armaduras, vigas, conectores)', d:25, tipo:'n', rama:'1.4', col:'azul', pista:'Incierta: 20 / 25 / 33 días.'},
+ {id:'A7', c:'Pintura en taller', n:'Pintura anticorrosiva en taller', d:5, tipo:'n', rama:'1.4', col:'azul', pista:''},
+ {id:'A8', c:'Permiso de la CAR (hito)', n:'Permiso de ocupación de cauce expedido por la CAR (hito externo)', d:0, tipo:'hito', rama:'1.2', col:'hito', pista:'Lo tramita la entidad. Fecha estimada: martes 23 de marzo de 2027 (día hábil 15). Sin permiso no se toca la quebrada.', restr:15},
+ {id:'A25', c:'Socialización con la comunidad', n:'Socialización con la comunidad y acuerdo de cierres', d:2, tipo:'n', rama:'1.1', col:'amar', pista:'La comunidad debe aceptar los cierres antes de que entre la maquinaria.'},
+ {id:'A9', c:'Desvío de cauce y excavación', n:'Desvío parcial del cauce y excavación de los dos estribos', d:10, tipo:'n', rama:'1.3', col:'verde', pista:'Incierta: 7 / 10 / 19 días según lluvias. Una sola retroexcavadora.'},
+ {id:'A10', c:'Cimentación de estribos', n:'Cimentación de estribos (concreto ciclópeo y zapatas)', d:6, tipo:'n', rama:'1.3', col:'verde', pista:''},
+ {id:'A11', c:'Estribos y aletas en concreto', n:'Estribos y aletas en concreto reforzado (formaleta, acero, fundida)', d:12, tipo:'n', rama:'1.3', col:'verde', pista:''},
+ {id:'A12', c:'Curado de estribos', n:'Curado de estribos (7 días calendario)', d:5, tipo:'dt', rama:'1.3', col:'verde', pista:'El concreto cura sábados, domingos y festivos: 7 días calendario, que en la pared son 5 hábiles. En Project va como 7dt.'},
+ {id:'A13', c:'Rellenos detrás de estribos', n:'Rellenos y compactación detrás de estribos', d:5, tipo:'n', rama:'1.3', col:'verde', pista:'No se rellena contra un estribo sin curar.'},
+ {id:'A14', c:'Transporte de la estructura', n:'Transporte de la estructura a la obra por vía terciaria', d:3, tipo:'n', rama:'1.4', col:'azul', pista:'Incierta: 2 / 3 / 10 días. La vía se cierra con lluvia fuerte.'},
+ {id:'A15', c:'Montaje con grúa', n:'Montaje de la estructura con grúa y fijación a los apoyos', d:5, tipo:'n', rama:'1.4', col:'azul', pista:'Necesita los dos estribos curados y la estructura en obra.'},
+ {id:'A16', c:'Tablero', n:'Tablero: lámina colaborante y losa de concreto', d:8, tipo:'n', rama:'1.4', col:'azul', pista:''},
+ {id:'A17', c:'Curado del tablero', n:'Curado del tablero (7 días calendario)', d:5, tipo:'dt', rama:'1.4', col:'azul', pista:'Igual que el de los estribos: 7dt en Project.'},
+ {id:'A18', c:'Barandas y pintura final', n:'Barandas, pintura final y detalles', d:6, tipo:'n', rama:'1.4', col:'azul', pista:''},
+ {id:'A19', c:'Acceso margen izquierda', n:'Acceso margen izquierda, 15 m (excavación, subbase, losa, cunetas)', d:12, tipo:'n', rama:'1.5', col:'verde', pista:'Se construye sobre el relleno del estribo.'},
+ {id:'A20', c:'Acceso margen derecha', n:'Acceso margen derecha, 15 m', d:12, tipo:'n', rama:'1.5', col:'verde', pista:'Una sola cuadrilla de accesos. Si quieren dos, hay que justificarlo y costarlo.'},
+ {id:'A21', c:'Prueba de carga e inspección', n:'Prueba de carga e inspección final con la interventoría', d:2, tipo:'n', rama:'1.6', col:'amar', pista:'Con el puente terminado y los dos accesos listos.'},
+ {id:'A22', c:'Señalización y limpieza', n:'Señalización definitiva, limpieza y retiro del campamento', d:3, tipo:'n', rama:'1.6', col:'amar', pista:''},
+ {id:'A23', c:'Puente en servicio (hito)', n:'Puente en servicio: acta de recibo', d:0, tipo:'hito', rama:'1.6', col:'hito', pista:'Es la fecha que se compara contra el plazo.'},
+ {id:'A24', c:'Liquidación', n:'Liquidación del contrato', d:10, tipo:'n', rama:'1.1', col:'amar', pista:'Después del recibo. No cuenta para el plazo de obra.'},
+];
+const IDX = Object.fromEntries(ACT.map((a,i)=>[a.id,i]));
+const RAMAS = {'1.1':'Gerencia del proyecto','1.2':'Preliminares','1.3':'Subestructura','1.4':'Superestructura metálica','1.5':'Accesos','1.6':'Entrega'};
+// hechos del catálogo que la lógica debe respetar: [actividad, predecesora obligatoria, por qué]
+const HECHOS = [
+ ['A4','A1','la interventoría no aprueba planos sin acta de inicio'],
+ ['A5','A4','el proveedor solo corta acero con planos aprobados'],
+ ['A6','A5','no se fabrica sin el acero en el taller'],
+ ['A7','A6','se pinta lo que ya está fabricado'],
+ ['A9','A8','sin permiso de la CAR no se toca la quebrada'],
+ ['A9','A25','la comunidad debe aceptar los cierres antes de que entre la maquinaria'],
+ ['A9','A2','sin replanteo no se sabe dónde excavar'],
+ ['A10','A9','la cimentación va en la excavación'],
+ ['A11','A10','los estribos van sobre la cimentación'],
+ ['A12','A11','el curado sigue a la fundida'],
+ ['A13','A12','no se rellena contra un estribo sin curar'],
+ ['A14','A7','se transporta la estructura terminada y pintada'],
+ ['A15','A12','la grúa necesita los estribos curados'],
+ ['A15','A14','la grúa necesita la estructura en obra'],
+ ['A16','A15','el tablero va sobre la estructura montada'],
+ ['A17','A16','el curado sigue a la losa'],
+ ['A18','A17','barandas y pintura sobre el tablero curado'],
+ ['A19','A13','el acceso se construye sobre el relleno'],
+ ['A20','A13','el acceso se construye sobre el relleno'],
+ ['A21','A18','la prueba de carga exige el puente terminado'],
+ ['A21','A19','la prueba exige los dos accesos listos'],
+ ['A21','A20','la prueba exige los dos accesos listos'],
+ ['A22','A21','se señaliza y limpia después de la prueba'],
+ ['A23','A22','el recibo cierra todo lo anterior'],
+ ['A24','A23','la liquidación viene después del recibo'],
+];
+const PERT = {A6:[20,25,33], A9:[7,10,19], A14:[2,3,10]};
+const EVENTOS = [
+ {id:'E1', t:'La CAR se demora', tx:'El permiso de ocupación de cauce no sale el 23 de marzo. La CAR pide un ajuste al plan de manejo y la fecha de expedición se corre al día hábil 30 (jueves 15 de abril de 2027). Mientras tanto, nadie puede entrar a la quebrada.', ap:{restr:{A8:30}}},
+ {id:'E2', t:'El taller avisa', tx:'El taller de estructuras informa que, por un pedido grande de otro cliente, la fabricación va a tomar 33 días en lugar de 25. Ya cortaron el acero y no hay otro taller cerca con capacidad.', ap:{dur:{A6:33}}},
+ {id:'E3', t:'Llueve en la quebrada', tx:'Tres crecientes en dos semanas. La excavación y el desvío de cauce toman el valor pesimista: 19 días en vez de 10.', ap:{dur:{A9:19}}},
+ {id:'E4', t:'El alcalde quiere inaugurar', tx:'El municipio pide entregar el puente el día hábil 72 (jueves 17 de junio de 2027), tres semanas antes, para la fiesta patronal. El patrocinador lo considera viable si se justifica el costo.', ap:{meta:72}},
+ {id:'E5', t:'Se dañó la retro', tx:'La única retroexcavadora se vara durante la excavación de estribos. Repuesto desde Bogotá: cuatro días hábiles sin excavar.', ap:{mas:{A9:4}}},
+ {id:'E6', t:'La interventoría rechaza el acero', tx:'En la revisión previa a la fundida, la interventoría rechaza el acero de refuerzo de los estribos por certificados incompletos. Reposición y nueva revisión: cinco días hábiles.', ap:{mas:{A11:5}}},
+];
+const COMPRESION = [
+ {id:'c1', a:'A6', t:'Turno extra nocturno en el taller de fabricación', ahorro:8, costo:12, tipo:'Intensificación'},
+ {id:'c2', a:'A5', t:'Acero de un distribuidor local, más caro', ahorro:5, costo:4, tipo:'Intensificación'},
+ {id:'c3', a:'A15', t:'Segunda grúa y cuadrilla de montaje', ahorro:2, costo:6, tipo:'Intensificación'},
+ {id:'c4', a:'A17', t:'Concreto de alta resistencia temprana en el tablero: curado de 3 días', ahorro:2, costo:2, tipo:'Intensificación'},
+ {id:'c5', a:'A18', t:'Empezar barandas con el tablero a medio curar (comienzo a comienzo con 2 días)', ahorro:3, costo:0, tipo:'Ejecución rápida: riesgo de daño al concreto'},
+ {id:'c6', a:'A22', t:'Señalizar durante la prueba de carga (comienzo a comienzo)', ahorro:2, costo:0, tipo:'Ejecución rápida: riesgo bajo'},
+];
+
+/* ============================================================ calendario */
+const DIA = 86400000;
+function fechaIdx(i){ return new Date(INICIO.getTime() + i*DIA); }
+function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function esLaboral(i){ const d = fechaIdx(i); const w = d.getDay(); return w!==0 && w!==6 && !FESTIVOS.includes(iso(d)); }
+function rodar(i){ while(!esLaboral(i)) i++; return i; }
+function sumarHabiles(i, n){ // devuelve el índice del día siguiente al último día trabajado
+  i = rodar(i); if(n===0) return i;
+  let k = 0; while(true){ if(esLaboral(i)) { k++; if(k===n) return i+1; } i++; }
+}
+function habilK(k){ // fecha del día hábil k contado desde el inicio (k=0 es el 1 de marzo)
+  let i = 0, c = 0; i = rodar(0); while(c<k){ i++; i = rodar(i); c++; } return i;
+}
+const fLarga = new Intl.DateTimeFormat('es-CO',{weekday:'long', day:'numeric', month:'long', year:'numeric'});
+function fmt(d){ return fLarga.format(d).replace(/^\w/, c=>c.toUpperCase()); }
+function fmtIdx(i){ return fmt(fechaIdx(i)); }
+function num(x){ return String(x).replace('.', ','); }
+
+/* ============================================================ CPM */
+function parsePreds(txt){ // "A2, A3+2, A17SS+2" -> [{id,tipo,lag}]
+  const out = [], errs = [];
+  (txt||'').split(/[,;\s]+/).filter(Boolean).forEach(tok=>{
+    const m = tok.toUpperCase().match(/^(A\d+)(FS|SS)?(?:\+(\d+))?$/);
+    if(!m || !(m[1] in IDX)) errs.push(tok); else out.push({id:m[1], tipo:m[2]||'FS', lag:+(m[3]||0)});
+  });
+  return {preds:out, errs};
+}
+function orden(logica){ // orden topológico; null si hay ciclo
+  const vis = {}, temp = {}, res = [];
+  function dfs(id){ if(temp[id]) return false; if(vis[id]) return true; temp[id]=true;
+    for(const p of (logica[id]||[])) if(!dfs(p.id)) return false; temp[id]=false; vis[id]=true; res.push(id); return true; }
+  for(const a of ACT) if(!dfs(a.id)) return null;
+  return res;
+}
+function cpm(logica, opt={}){ // opt: dur{id:n}, mas{id:n}, restr{id:k}
+  const dur = {}; ACT.forEach(a=>{ dur[a.id] = (opt.dur&&a.id in opt.dur)?opt.dur[a.id]:a.d; if(opt.mas&&a.id in opt.mas) dur[a.id]+=opt.mas[a.id]; });
+  const restr = {}; ACT.forEach(a=>{ if(a.restr) restr[a.id]=a.restr; }); if(opt.restr) Object.assign(restr, opt.restr);
+  const ord = orden(logica); if(!ord) return null;
+  const ES={}, EF={}, LS={}, LF={};
+  for(const id of ord){ let es=0; for(const p of (logica[id]||[])) es = Math.max(es, p.tipo==='SS' ? ES[p.id]+p.lag : EF[p.id]+p.lag);
+    if(id in restr) es = Math.max(es, restr[id]); ES[id]=es; EF[id]=es+dur[id]; }
+  const fin = Math.max(...Object.values(EF));
+  for(const id of [...ord].reverse()){ let lf = fin;
+    for(const s of ACT){ for(const p of (logica[s.id]||[])) if(p.id===id){ lf = Math.min(lf, p.tipo==='SS' ? LS[s.id]-p.lag+dur[id] : LS[s.id]-p.lag); } }
+    LF[id]=lf; LS[id]=lf-dur[id]; }
+  const H = {}; ACT.forEach(a=>H[a.id]=LS[a.id]-ES[a.id]);
+  const rc = ACT.filter(a=>H[a.id]===0 && a.id!=='A24' && a.id!=='A1').map(a=>a.id);
+  return {ES,EF,LS,LF,H,dur,fin,recibo:EF['A23'],rc};
+}
+// paso adelante con fechas reales: curados en días transcurridos y restricción como fecha
+function fechas(logica, opt={}){
+  const dur = {}; ACT.forEach(a=>{ dur[a.id] = (opt.dur&&a.id in opt.dur)?opt.dur[a.id]:a.d; if(opt.mas&&a.id in opt.mas) dur[a.id]+=opt.mas[a.id]; });
+  const restr = {}; ACT.forEach(a=>{ if(a.restr) restr[a.id]=habilK(a.restr); }); if(opt.restr) for(const k in opt.restr) restr[k]=habilK(opt.restr[k]);
+  const ord = orden(logica); if(!ord) return null;
+  const ini={}, fin={};
+  for(const id of ord){ const a = ACT[IDX[id]]; let s = 0;
+    for(const p of (logica[id]||[])){ const base = p.tipo==='SS' ? ini[p.id] : fin[p.id]; s = Math.max(s, p.lag ? sumarHabiles(rodar(base), p.lag) : base); }
+    if(id in restr) s = Math.max(s, restr[id]); s = rodar(s); ini[id]=s;
+    fin[id] = a.tipo==='dt' ? s + 7 : (dur[id]===0 ? s : sumarHabiles(s, dur[id])); }
+  return {ini, fin, recibo: fin['A22']-1 >= ini['A22'] ? fin['A22']-1 : ini['A22']};
+}
+
+/* ============================================================ estado */
+const KEY = 'taller1-cronograma';
+function leer(){ try { return JSON.parse(localStorage.getItem(KEY)||'null'); } catch(e){ return null; } }
+let S = leer() || {grupo:'', visto:[], apuesta:{}, sellado:false, edt:{p14:'',p15:''}, colgar:{}, hito4:'', logica:{}, pared:{}, pert:{}, project:{checks:[], fecha:''}, ev:{sel:[], pred:{}, aplic:[], comp:[]}, quiz:{}, cierre:''};
+function guardar(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+function logicaActual(){ const L = {}; ACT.forEach(a=>{ L[a.id] = parsePreds(S.logica[a.id]||'').preds; }); return L; }
+
+/* ============================================================ diapositivas */
+const SEC = [
+ {t:'Antes de empezar', s:['portada','como','proyecto','reto']},
+ {t:'Bloque 0 · La apuesta', s:['apuesta']},
+ {t:'Bloque 1 · Del paquete a la actividad', s:['edt','colgar','hitos']},
+ {t:'Bloque 2 · La pared', s:['pared-intro','logica','idavuelta','red','pert']},
+ {t:'Bloque 3 · Project', s:['hoja','cotejo']},
+ {t:'Bloque 4 · Se movió el piso', s:['tarjetas','aplicar']},
+ {t:'Bloque 5 · Se abre el sobre', s:['sobre','quiz','emparejar','bitacora']},
+];
+const SLIDES = SEC.flatMap(x=>x.s);
+const TIT = {portada:'Portada', como:'Cómo funciona', proyecto:'El proyecto', reto:'Lo que se entrega', apuesta:'El sobre', edt:'Completar la EDT', colgar:'Colgar las actividades', hitos:'Los hitos', 'pared-intro':'Hacia atrás', logica:'La lógica', idavuelta:'Ida y vuelta', red:'Ver la red', pert:'Las tres inciertas', hoja:'Hoja de ruta', cotejo:'El cotejo', tarjetas:'Las tarjetas', aplicar:'Aplicar y decidir', sobre:'Abrir el sobre', quiz:'Tres preguntas', emparejar:'Emparejar', bitacora:'La bitácora'};
+let cur = Math.max(0, SLIDES.indexOf(location.hash.slice(1))) ;
+
+function h(html){ const d = document.createElement('div'); d.innerHTML = html; return d; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function filaClase(a){ return a.tipo==='hito' ? 'hito' : a.col; }
+
+const V = {};
+V.portada = ()=>`<div class="cab">Taller 1 · Dominio de desempeño del cronograma</div>
+<h2>Cinco meses en una pared</h2>
+<p>Van a programar la construcción de un puente peatonal de 24 metros. Primero con las manos: papeles en una pared, flechas, cuentas de ida y de vuelta. Después con Project, que hace las mismas cuentas en un segundo y les va a dar una fecha distinta de la que ustedes calcularon. Explicar esa diferencia es una de las cosas que más vale.</p>
+<p>Al final, dos eventos que ustedes no eligen les van a mover el piso, como en cualquier obra. Tendrán que decidir qué hacer.</p>
+<div class="caja info"><div class="t">Antes de empezar</div>Esta página guarda el avance del grupo en este navegador. Trabajen desde un solo computador, o exporten la bitácora al final. Escriban el nombre del grupo:
+<div class="fila"><input type="text" id="grupo" placeholder="Grupo 3 · Posgrados" value="${esc(S.grupo)}" style="width:280px"></div></div>`;
+V.como = ()=>`<div class="cab">Antes de empezar</div><h2>Cómo funciona</h2>
+<table><tr><th>Bloque</th><th>Min</th><th>Qué se hace</th></tr>
+<tr><td>0 · La apuesta</td><td class="n">10</td><td>Estimar a ojo la duración del puente y la parte que va a mandar el plazo</td></tr>
+<tr><td>1 · Del paquete a la actividad</td><td class="n">35</td><td>Completar la EDT, colgar cada actividad de un paquete y fijar los hitos</td></tr>
+<tr><td>2 · La pared</td><td class="n">55</td><td>Red de precedencias hacia atrás, recorrido de ida y de vuelta, ruta crítica, holguras, PERT</td></tr>
+<tr><td>3 · Project</td><td class="n">75</td><td>Calendario colombiano, actividades, lógica, restricción externa, línea base, Gantt. Cotejo</td></tr>
+<tr><td>4 · Se movió el piso</td><td class="n">25</td><td>Dos tarjetas de evento. Predecir, actualizar, decidir</td></tr>
+<tr><td>5 · Se abre el sobre</td><td class="n">15</td><td>Comparar la apuesta con el resultado. Tres preguntas y la bitácora</td></tr></table>
+<p>La Guía del PMBOK 8 dice, en la página 58 de la edición impresa, que la falacia de planificación afecta la exactitud de las estimaciones. Hoy van a ver si les pasa a ustedes.</p>
+<p class="pequeno">La página no reemplaza la pared ni Project: los acompaña. Comprueba sus cuentas, dibuja la red con la lógica que ustedes definan, calcula la fecha que debería dar Project y arma la bitácora.</p>`;
+V.proyecto = ()=>`<div class="cab">Antes de empezar</div><h2>El proyecto</h2>
+<p>El municipio contrató la construcción de un puente peatonal sobre la quebrada La Honda, en la vereda El Cerezo, que hoy cruzan a pie por un paso de tablones que se lleva la creciente dos veces al año. Contrato de obra a precios unitarios, regido por la Ley 80 de 1993, con interventoría externa.</p>
+<div class="dos">
+${[['Objeto','Puente peatonal de 24 m de luz en estructura metálica, sobre estribos en concreto reforzado, con accesos en concreto de 15 m a cada lado.'],
+   ['Plazo y presupuesto','Cinco meses desde el acta de inicio, lunes 1 de marzo de 2027. 380 millones con certificado de disponibilidad presupuestal. No se puede adicionar: la vigencia se vence.'],
+   ['Lo que entrega la entidad','Diseños estructurales y de cimentación, estudio de socavación y el permiso de ocupación de cauce, ya radicado ante la CAR con fecha estimada de expedición el 23 de marzo de 2027.'],
+   ['Exclusiones','Iluminación, adquisición predial y mantenimiento posterior al recibo.'],
+   ['Jornada','Lunes a viernes, de 7:00 a 12:00 y de 13:00 a 16:00. Ocho horas. No se trabaja sábados, domingos ni festivos.'],
+   ['Recursos que limitan','Una sola retroexcavadora; una sola cuadrilla de accesos; grúa alquilada por días que se reserva con dos semanas de anticipación; estructura fabricada en un taller de Tunja.']]
+ .map(([a,b])=>`<div class="flip" onclick="this.classList.toggle('volteada')"><div class="cara"><div class="a"><div class="t">${a}</div><p class="pequeno">Toque para ver</p></div><div class="b"><div class="t">${a}</div><p style="font-size:13.5px">${b}</p></div></div></div>`).join('')}
+</div>
+<p style="margin-top:12px"><b>Criterio de recibo:</b> prueba de carga satisfactoria con la interventoría y acta de recibo firmada. Esa fecha es la que se compara contra el plazo.</p>`;
+V.reto = ()=>`<div class="cab">Antes de empezar</div><h2>Lo que se entrega</h2>
+<p>Por Moodle, un envío por grupo:</p>
+<ul><li>El archivo de Project (.mpp).</li><li>El diagrama de Gantt en PDF con la ruta crítica en rojo.</li><li>La foto de la pared con la ruta crítica marcada.</li><li>La bitácora de decisiones de dos páginas, que esta página arma al final.</li></ul>
+<p>La sustentación es en la clase siguiente: cinco minutos por grupo y una pregunta del tipo «¿qué pasa si…?» sobre el cronograma del grupo, sin abrir el archivo.</p>
+<table><tr><th>Criterio</th><th>Qué se mira</th><th>Peso</th></tr>
+<tr><td>EDT y actividades</td><td>Ramas completas con la regla del 100 por ciento; cada actividad cuelga de un paquete; hitos bien puestos</td><td class="n">15 %</td></tr>
+<tr><td>Red y cálculo a mano</td><td>Lógica que respeta los hechos del catálogo; recorridos correctos; ruta crítica y holguras; PERT</td><td class="n">25 %</td></tr>
+<tr><td>Cronograma en Project</td><td>Calendario y festivos; curados en días transcurridos; restricción externa; línea base; Gantt legible</td><td class="n">25 %</td></tr>
+<tr><td>Cotejo y eventos</td><td>Cada día de diferencia explicado; predicción escrita antes de actualizar; decisión con costo y riesgo</td><td class="n">20 %</td></tr>
+<tr><td>Bitácora y sustentación</td><td>Dos páginas con cifras; respuesta correcta sin abrir el archivo</td><td class="n">15 %</td></tr></table>
+<p class="pequeno">Regla del curso: la IA sirve para consultar, no para producir el entregable. Aquí no tiene mucho que hacer: la red es la de ustedes, las tarjetas las escoge el azar y la sustentación es sin pantalla.</p>`;
+V.apuesta = ()=>{
+  const a = S.apuesta; const sel = S.sellado;
+  return `<div class="cab">Bloque 0 · 10 minutos</div><h2>El sobre</h2>
+<p>Sin mirar el catálogo de actividades. El grupo se pone de acuerdo y escribe. Cuando sellen el sobre no se puede cambiar; se abre en el bloque 5. No hay nota por acertar: la hay por explicar la diferencia.</p>
+<label class="f">¿En cuántas semanas queda el puente en servicio?</label>
+<input type="number" id="ap-sem" min="4" max="40" value="${a.sem||''}" ${sel?'disabled':''}> <span class="pequeno">semanas desde el acta de inicio</span>
+<label class="f">¿Qué parte de la obra va a mandar el plazo?</label>
+<select id="ap-manda" ${sel?'disabled':''}>${['','La quebrada: excavación, estribos y curados','La estructura metálica: planos, acero, fabricación, montaje','Los accesos','Los permisos y la gestión social','La entrega: prueba de carga y recibo'].map(o=>`<option ${a.manda===o?'selected':''}>${o}</option>`).join('')}</select>
+<label class="f">¿Cuántos días hábiles de margen quedan contra los cinco meses del contrato?</label>
+<input type="number" id="ap-margen" min="-60" max="80" value="${a.margen??''}" ${sel?'disabled':''}> <span class="pequeno">negativo si creen que no alcanza</span>
+<div style="margin-top:16px">${sel ? `<div class="sobre">SOBRE SELLADO <span class="sello">SELLADO</span><br><span class="pequeno">${esc(a.sem)} semanas · ${esc(a.manda)} · margen ${esc(a.margen)} días</span></div>` : `<button class="btn pri" id="sellar">Sellar el sobre</button>`}</div>`;
+};
+V.edt = ()=>`<div class="cab">Bloque 1 · 35 minutos</div><h2>Completar la EDT</h2>
+<p>La EDT del contrato viene con dos ramas sin desglosar. Complétenlas a nivel de paquete de trabajo con la regla del 100 por ciento: la suma de los paquetes de una rama es exactamente esa rama, ni más ni menos, y cada paquete se nombra con un sustantivo que alguien pueda recibir.</p>
+<table><tr><th>Rama</th><th>Paquetes de trabajo</th></tr>
+<tr><td>1.1 Gerencia del proyecto</td><td>1.1.1 Plan del proyecto y acta de inicio · 1.1.2 Informes mensuales e informe final · 1.1.3 Gestión social · 1.1.4 Liquidación del contrato</td></tr>
+<tr><td>1.2 Preliminares</td><td>1.2.1 Localización y replanteo · 1.2.2 Campamento, cerramiento y señalización temporal</td></tr>
+<tr><td>1.3 Subestructura</td><td>1.3.1 Desvío de cauce y excavaciones · 1.3.2 Cimentación de estribos · 1.3.3 Estribos y aletas en concreto reforzado · 1.3.4 Rellenos</td></tr>
+<tr><td>1.4 Superestructura metálica</td><td><textarea id="p14" placeholder="1.4.1 …&#10;1.4.2 …" rows="4">${esc(S.edt.p14)}</textarea></td></tr>
+<tr><td>1.5 Accesos</td><td><textarea id="p15" placeholder="1.5.1 …&#10;1.5.2 …" rows="3">${esc(S.edt.p15)}</textarea></td></tr>
+<tr><td>1.6 Entrega</td><td>1.6.1 Prueba de carga e inspección final · 1.6.2 Señalización definitiva y limpieza · 1.6.3 Acta de recibo</td></tr></table>
+<button class="btn" id="edt-check">Revisar lo escrito</button> <div id="edt-out"></div>
+<p class="pequeno" style="margin-top:10px">Prueba rápida: si un paquete empieza con un verbo (fundir, montar, pintar) está mal escrito. Si un paquete solo tiene un hijo, sobra el nivel.</p>`;
+V.colgar = ()=>`<div class="cab">Bloque 1</div><h2>Colgar las actividades</h2>
+<p>Este es el catálogo del residente: 25 actividades con su duración en días hábiles. A cada una, díganle de qué rama de la EDT cuelga. Si alguna no tiene dónde colgar, a la EDT le falta un paquete. Lean la columna de la derecha con cuidado: son hechos de la obra, no sugerencias.</p>
+<table><tr><th>Id</th><th>Actividad</th><th>Dur.</th><th>Rama</th><th>Lo que hay que saber</th></tr>
+${ACT.map(a=>`<tr class="${filaClase(a)}"><td class="n">${a.id}</td><td>${a.n}</td><td class="n">${a.tipo==='hito'?'0':a.tipo==='dt'?'7 cal.':a.d}</td>
+<td><select data-colgar="${a.id}"><option value="">…</option>${Object.keys(RAMAS).map(r=>`<option value="${r}" ${S.colgar[a.id]===r?'selected':''}>${r}</option>`).join('')}</select></td><td class="pequeno">${a.pista}</td></tr>`).join('')}</table>
+<button class="btn" id="colgar-check">Comprobar</button> <div id="colgar-out"></div>`;
+V.hitos = ()=>`<div class="cab">Bloque 1</div><h2>Los hitos</h2>
+<p>Un hito no tiene duración: es un evento que alguien puede confirmar con una firma o una foto. El catálogo trae tres. El cuarto lo define el grupo.</p>
+<div class="caja"><div class="t">Del catálogo</div>A1 Acta de inicio · A8 Permiso de la CAR expedido · A23 Puente en servicio (acta de recibo)</div>
+<label class="f">Cuarto hito del grupo</label>
+<input type="text" id="hito4" placeholder="Ej.: estructura montada sobre los estribos" value="${esc(S.hito4)}" style="width:100%">
+<button class="btn" id="hito-check" style="margin-top:10px">Revisar</button><div id="hito-out"></div>
+<p class="pequeno" style="margin-top:10px">Pista: los buenos hitos coinciden con un pago, un recibo parcial o un cambio de fase. «Estructura montada» le importa al cliente; «terminar de comprar el acero» no.</p>`;
+V['pared-intro'] = ()=>`<div class="cab">Bloque 2 · 55 minutos</div><h2>Hacia atrás</h2>
+<p>Una nota por actividad: verde para concreto y movimiento de tierra, azul para estructura metálica, amarilla para gerencia, preliminares y entrega. Los hitos van en rojo. Escriban en cada nota el id, el nombre corto y la duración, y dejen espacio para cuatro números.</p>
+<p>Peguen primero el hito «Puente en servicio» en el extremo derecho de la pared y pregúntense qué tiene que estar terminado justo antes. Peguen esa actividad y vuelvan a preguntar. Así, de derecha a izquierda, hasta el acta de inicio. Es la forma en que se planifica por fases en el sistema Last Planner, que la Guía del PMBOK 8 recoge en la página 62 de la edición impresa, y sirve porque obliga a pensar en lo que cada actividad necesita recibir.</p>
+<p>Casi todas las relaciones son fin a inicio. Si necesitan un adelanto o un retraso, escríbanlo sobre la flecha con su justificación. Una dependencia discrecional, como que el acceso derecho vaya después del izquierdo por tener una sola cuadrilla, se marca con línea punteada.</p>
+<div class="leyenda"><span><i style="background:var(--verde)"></i>Concreto y tierra</span><span><i style="background:var(--azul)"></i>Estructura metálica</span><span><i style="background:var(--amarillo)"></i>Gerencia, preliminares, entrega</span><span><i style="background:var(--rojo)"></i>Hitos</span></div>
+<p>En la siguiente pantalla van a copiar la lógica de la pared para que la página la revise contra los hechos del catálogo.</p>`;
+V.logica = ()=>`<div class="cab">Bloque 2</div><h2>La lógica</h2>
+<p>Escriban las predecesoras de cada actividad tal como quedaron en la pared, separadas por comas. Un retraso se escribe <span class="mono">A11+2</span>; un comienzo a comienzo, <span class="mono">A17SS+2</span>. La página no les dice la lógica: solo les avisa cuando una flecha viola un hecho de la obra o cuando la red se muerde la cola.</p>
+<table><tr><th>Id</th><th>Actividad</th><th>Dur.</th><th>Predecesoras</th></tr>
+${ACT.map(a=>`<tr class="${filaClase(a)}"><td class="n">${a.id}</td><td>${a.c}</td><td class="n">${a.tipo==='hito'?'0':a.d}${a.tipo==='dt'?'*':''}</td><td><input type="text" class="pred" data-pred="${a.id}" value="${esc(S.logica[a.id]||'')}" ${a.id==='A1'?'placeholder="ninguna" disabled':''}></td></tr>`).join('')}</table>
+<p class="pequeno">* Los curados son 7 días calendario: en la pared cuentan como 5 hábiles.</p>
+<button class="btn pri" id="logica-check">Revisar la lógica</button> <div id="logica-out"></div>`;
+V.idavuelta = ()=>{
+  const L = logicaActual(); const r = cpm(L);
+  if(!r) return `<div class="cab">Bloque 2</div><h2>Ida y vuelta</h2><div class="caja mal">La red tiene un ciclo o está incompleta. Vuelvan a la lógica.</div>`;
+  const vacia = ACT.some(a=>a.id!=='A1' && !(L[a.id]||[]).length);
+  return `<div class="cab">Bloque 2</div><h2>Ida y vuelta</h2>
+<p>Con la red cerrada: recorrido hacia adelante desde el día 0 (inicio temprano y fin temprano), recorrido hacia atrás desde el hito de recibo (inicio y fin tardíos), holgura total igual a LS menos ES. Escriban los números de la pared y comprueben. La página marca las celdas que no cuadran con <b>su</b> lógica; no las corrige.</p>
+${vacia?'<div class="caja ojo">Hay actividades sin predecesora. Toda actividad, salvo el acta de inicio, debe conectarse al menos a una anterior.</div>':''}
+<table><tr><th>Id</th><th>Actividad</th><th>Dur.</th><th>ES</th><th>EF</th><th>LS</th><th>LF</th><th>H</th></tr>
+${ACT.map(a=>{const p=S.pared[a.id]||{}; return `<tr class="${filaClase(a)}"><td class="n">${a.id}</td><td>${a.c}</td><td class="n">${r.dur[a.id]}</td>${['ES','EF','LS','LF','H'].map(k=>`<td><input class="celda" data-cel="${a.id}:${k}" value="${p[k]??''}"></td>`).join('')}</tr>`;}).join('')}</table>
+<div class="fila"><button class="btn pri" id="pared-check">Comprobar</button><button class="btn" id="pared-rev">Revelar la solución de mi lógica</button><span id="pared-res" class="pequeno"></span></div>
+<div id="pared-out"></div>`;
+};
+V.red = ()=>{
+  const L = logicaActual(); const r = cpm(L);
+  if(!r) return `<div class="cab">Bloque 2</div><h2>Ver la red</h2><div class="caja mal">La red tiene un ciclo o está incompleta.</div>`;
+  return `<div class="cab">Bloque 2</div><h2>Ver la red</h2>
+<p>Esta es la red con la lógica que ustedes escribieron, dibujada por niveles. La ruta crítica va en rojo. Compárenla con la pared: si la pared dice otra cosa, una de las dos está mal.</p>
+<div class="leyenda"><span><i style="background:var(--verde)"></i>Concreto y tierra</span><span><i style="background:var(--azul)"></i>Estructura metálica</span><span><i style="background:var(--amarillo)"></i>Gerencia, preliminares, entrega</span><span><i style="background:var(--rojo)"></i>Hitos</span><span><i style="background:#fff;border-color:var(--stop);border-width:2px"></i>Ruta crítica</span></div>
+<div class="red">${dibujarRed(L, r)}</div>
+<div class="caja"><div class="t">Con su lógica</div>Recibo en el día hábil <b>${r.recibo}</b>: ${num(Math.round(r.recibo/5*10)/10)} semanas de trabajo. Ruta crítica: <span class="mono">${r.rc.join(' → ')}</span>.<br>El plazo del contrato son cinco meses, cerca de 105 días hábiles: margen aproximado de <b>${105-r.recibo}</b> días hábiles sin contar festivos.</div>
+<p class="pequeno">Pregunta para la bitácora: ¿por dónde pasa la ruta crítica, por el concreto o por el acero? ¿Se lo esperaban?</p>`;
+};
+V.pert = ()=>{
+  const L = logicaActual(); const r = cpm(L); const p = S.pert;
+  const html = Object.keys(PERT).map(id=>{ const [o,m,pp] = PERT[id]; const a = ACT[IDX[id]]; const te=(o+4*m+pp)/6, sg=(pp-o)/6;
+    return `<div class="caja"><div class="t">${id} · ${a.c}</div>O = ${o} · M = ${m} · P = ${pp}<div class="fila">t<sub>e</sub> = <input type="number" step="0.01" data-pert="${id}:te" value="${p[id+':te']??''}"> σ = <input type="number" step="0.01" data-pert="${id}:sg" value="${p[id+':sg']??''}"> <span class="pequeno" id="pert-${id}"></span></div>${r&&r.H[id]===0?'<span class="chip">En la ruta crítica</span>':'<span class="chip">Fuera de la ruta crítica</span>'}</div>`; }).join('');
+  return `<div class="cab">Bloque 2</div><h2>Las tres inciertas</h2>
+<p>Tres actividades vienen con estimación de tres valores. Duración esperada t<sub>e</sub> = (O + 4M + P) / 6 y desviación estándar σ = (P − O) / 6. Calculen a mano y comprueben.</p>
+${html}
+<div class="fila"><button class="btn pri" id="pert-check">Comprobar</button><button class="btn" id="pert-aplicar">¿Cambia la ruta crítica con las esperadas?</button></div><div id="pert-out"></div>`;
+};
+V.hoja = ()=>{
+  const ch = S.project.checks||[];
+  const pasos = [['Información del proyecto','Fecha de comienzo: 1 de marzo de 2027. Programar a partir de la fecha de comienzo.'],
+   ['Calendario','Proyecto › Cambiar calendario laboral. Jornada de 7:00 a 12:00 y de 13:00 a 16:00, lunes a viernes. En Excepciones, los festivos de la lista. Opciones › Programación: 8 horas por día, 40 por semana.'],
+   ['Actividades','Las 25 actividades con su id en el nombre, sangradas bajo su rama de la EDT como tareas de resumen.'],
+   ['Duraciones','Días hábiles como «d». Los dos curados como «7dt»: días transcurridos, que corren en fines de semana y festivos. Hitos con duración 0.'],
+   ['Lógica','Predecesoras según la pared. Un retraso se escribe «11FC+2 días»; un comienzo a comienzo, «17CC+2 días».'],
+   ['La restricción externa','El permiso de la CAR es un hito con restricción «No comenzar antes del» 23 de marzo de 2027. No es una duración: es una fecha que no depende de ustedes.'],
+   ['Ruta crítica','Formato › Tareas críticas y Demora. Comparen con la pared.'],
+   ['Línea base','Proyecto › Establecer línea base. Sin ella, en el bloque 4 no van a poder medir cuánto se corrió el proyecto.'],
+   ['Gantt','Exporten a PDF la vista de Gantt con Nombre, Duración, Comienzo, Fin, Predecesoras y Demora total, con las tareas críticas en rojo.']];
+  return `<div class="cab">Bloque 3 · 75 minutos</div><h2>Hoja de ruta en Project</h2>
+<p>Project no piensa por ustedes: solo hace los recorridos de ida y de vuelta sobre la lógica que le den. Por eso la pared va primero. Los nombres son los de la versión en español.</p>
+${pasos.map((p,i)=>`<label style="display:flex;gap:10px;align-items:flex-start;margin:7px 0;cursor:pointer"><input type="checkbox" data-check="${i}" ${ch.includes(i)?'checked':''} style="margin-top:5px"><span><b>${i+1}. ${p[0]}.</b> ${p[1]}</span></label>`).join('')}
+<div class="caja info"><div class="t">Festivos de Colombia entre marzo y agosto de 2027</div>22 de marzo (San José) · 25 y 26 de marzo (Semana Santa) · 1 de mayo · 10 de mayo (Ascensión) · 31 de mayo (Corpus Christi) · 7 de junio (Sagrado Corazón) · 5 de julio (San Pedro y San Pablo) · 20 de julio · 7 de agosto. <span class="pequeno">Calculados con la Ley 51 de 1983. Verifíquenlos contra el calendario oficial antes de cargarlos.</span></div>`;
+};
+V.cotejo = ()=>{
+  const L = logicaActual(); const r = cpm(L); const F = fechas(L);
+  if(!r||!F) return `<div class="cab">Bloque 3</div><h2>El cotejo</h2><div class="caja mal">La red tiene un ciclo o está incompleta.</div>`;
+  return `<div class="cab">Bloque 3</div><h2>El cotejo</h2>
+<p>Project les dio una fecha de recibo. Escríbanla aquí. La página calcula la fecha que debería salir con su lógica, el calendario colombiano, los curados en días transcurridos y la restricción de la CAR como fecha, y les dice si cuadra.</p>
+<div class="fila"><label>Fecha de recibo según Project:</label> <input type="date" id="fecha-pj" value="${esc(S.project.fecha||'')}"> <button class="btn pri" id="cotejar">Cotejar</button></div>
+<div id="cotejo-out"></div>
+<div class="caja"><div class="t">Lo que la pared ya dijo</div>Recibo en el día hábil ${r.recibo}. Si la pared solo contó semanas de cinco días desde el 1 de marzo, la fecha «a ojo» es el ${fmtIdx(rodar(Math.floor(r.recibo/5)*7 + r.recibo%5))}, sin festivos ni curados reales.</div>
+<p class="pequeno">Tres causas de diferencia: los festivos, que la pared no contó; los curados en días transcurridos; y la restricción de la CAR, que en la pared es un día hábil y en Project es una fecha del calendario. Si después de eso queda una diferencia sin explicar, hay un error en alguna de las dos.</p>`;
+};
+V.tarjetas = ()=>`<div class="cab">Bloque 4 · 25 minutos</div><h2>Las tarjetas</h2>
+<p>El docente reparte dos tarjetas por grupo. Márquenlas aquí. Si están trabajando solos, el botón de sorteo escoge dos al azar.</p>
+<div class="dos">${EVENTOS.map(e=>`<div class="tarjeta-ev ${S.ev.sel.includes(e.id)?'sel':''}" data-ev="${e.id}"><h4>${e.id} · ${e.t}</h4><p>${e.tx}</p></div>`).join('')}</div>
+<div class="fila" style="margin-top:12px"><button class="btn" id="sortear">Sortear dos</button><span class="pequeno" id="ev-msg">${S.ev.sel.length===2?'Tarjetas: '+S.ev.sel.join(' y '):'Escojan dos'}</span></div>`;
+V.aplicar = ()=>{
+  if(S.ev.sel.length!==2) return `<div class="cab">Bloque 4</div><h2>Aplicar y decidir</h2><div class="caja ojo">Primero escojan las dos tarjetas.</div>`;
+  const L = logicaActual(); const base = cpm(L); const Fb = fechas(L);
+  if(!base) return `<div class="cab">Bloque 4</div><h2>Aplicar y decidir</h2><div class="caja mal">La red tiene un ciclo o está incompleta.</div>`;
+  let opt = {dur:{}, mas:{}, restr:{}}; let html = '';
+  html += `<div class="caja"><div class="t">Línea base (su lógica)</div>Recibo en el día hábil <b>${base.recibo}</b>, el ${fmtIdx(Fb.recibo)}. Ruta crítica: <span class="mono">${base.rc.join(' → ')}</span>.</div>`;
+  S.ev.sel.forEach((id, k)=>{
+    const e = EVENTOS.find(x=>x.id===id); const pred = S.ev.pred[id]||''; const aplicado = S.ev.aplic.includes(id);
+    html += `<h3>Tarjeta ${k+1} · ${e.id} ${e.t}</h3><p class="pequeno">${e.tx}</p>
+<label class="f">Antes de tocar nada: ¿qué creen que va a pasar con la fecha de recibo y con la ruta crítica?</label>
+<textarea data-predtxt="${id}" ${aplicado?'disabled':''} placeholder="Escriban la predicción del grupo (mínimo 40 caracteres)">${esc(pred)}</textarea>
+<div class="fila"><button class="btn pri" data-aplicar="${id}" ${aplicado?'disabled':''}>${aplicado?'Aplicada':'Aplicar la tarjeta'}</button></div>`;
+    if(aplicado){
+      if(e.ap.dur) Object.assign(opt.dur, e.ap.dur); if(e.ap.mas) for(const q in e.ap.mas) opt.mas[q]=(opt.mas[q]||0)+e.ap.mas[q]; if(e.ap.restr) Object.assign(opt.restr, e.ap.restr);
+      const r = cpm(L, opt); const F = fechas(L, opt);
+      if(e.ap.meta){
+        const meta = e.ap.meta; const falta = r.recibo - meta; const comp = S.ev.comp||[];
+        let ahorro = 0, costo = 0; comp.forEach(c=>{ const o = COMPRESION.find(x=>x.id===c); if(o){ ahorro+=o.ahorro; costo+=o.costo; }});
+        // efecto real de la compresión sobre la red: aplicar ahorros a las duraciones de las actividades escogidas
+        const opt2 = JSON.parse(JSON.stringify(opt)); comp.forEach(c=>{ const o = COMPRESION.find(x=>x.id===c); if(o){ opt2.mas[o.a] = (opt2.mas[o.a]||0) - o.ahorro; }});
+        const r2 = cpm(L, opt2);
+        html += `<div class="caja ${falta>0?'ojo':'ok'}"><div class="t">Meta</div>Con el estado actual el recibo cae en el día hábil <b>${r.recibo}</b> y la meta es el día <b>${meta}</b> (${fmtIdx(habilK(meta))}): hay que quitar <b>${Math.max(falta,0)}</b> días hábiles de la ruta crítica.</div>
+<p>Opciones para comprimir. Marquen las que proponen; la página recalcula la red con cada una, porque comprimir una cadena puede volver crítica la otra.</p>
+<table><tr><th></th><th>Actividad</th><th>Opción</th><th>Ahorro</th><th>Costo</th><th>Tipo</th></tr>
+${COMPRESION.map(c=>`<tr><td><input type="checkbox" data-comp="${c.id}" ${comp.includes(c.id)?'checked':''}></td><td class="n">${c.a}</td><td>${c.t}</td><td class="n">${c.ahorro} d</td><td class="n">${c.costo?c.costo+' M':'0'}</td><td class="pequeno">${c.tipo}</td></tr>`).join('')}</table>
+<div class="caja ${r2.recibo<=meta?'ok':'mal'}"><div class="t">Resultado de la compresión</div>Suma de ahorros escogidos: ${ahorro} días por ${costo} millones (${num(Math.round(costo/380*1000)/10)} % de un presupuesto que no admite adición). Recibo recalculado: día hábil <b>${r2.recibo}</b> (${fmtIdx(fechas(L,opt2).recibo)}). Ruta crítica ahora: <span class="mono">${r2.rc.join(' → ')}</span>.${r2.recibo>meta?' Todavía no alcanza.':' Se cumple la meta.'} <span class="pequeno">Si los ahorros no rinden lo que suman, es porque la otra cadena se volvió crítica.</span></div>`;
+      } else {
+        const cambio = r.rc.join() !== base.rc.join();
+        html += `<div class="caja ${r.recibo>base.recibo?'mal':'ok'}"><div class="t">Lo que pasó</div>Recibo en el día hábil <b>${r.recibo}</b> (${fmtIdx(F.recibo)}): ${r.recibo-base.recibo>0?`<b>${r.recibo-base.recibo}</b> días de corrimiento contra la línea base`:'sin corrimiento contra la línea base'}. Ruta crítica: <span class="mono">${r.rc.join(' → ')}</span>${cambio?' <b>(cambió)</b>':' (la misma)'}. ${r.rc.length>base.rc.length+3?'<b>Ojo: hay más de una ruta crítica.</b>':''}<br>Holgura mínima de la cadena de concreto (A12): <b>${r.H['A12']}</b> días.</div>
+<label class="f">Decisión del director de obra</label><textarea data-dec="${id}" placeholder="Aceptar el corrimiento, comprimir (qué actividad, cuánto cuesta, qué riesgo nuevo) o renegociar">${esc(S.ev.dec?.[id]||'')}</textarea>`;
+      }
+    }
+  });
+  return `<div class="cab">Bloque 4</div><h2>Aplicar y decidir</h2>${html}`;
+};
+V.sobre = ()=>{
+  const L = logicaActual(); const r = cpm(L); const F = r?fechas(L):null; const a = S.apuesta;
+  const semanas = r ? num(Math.round(r.recibo/5*10)/10) : null;
+  const manda = r ? (r.rc.some(x=>['A4','A5','A6','A7','A14'].includes(x)) ? 'La estructura metálica: planos, acero, fabricación, montaje' : r.rc.some(x=>['A9','A10','A11','A12'].includes(x)) ? 'La quebrada: excavación, estribos y curados' : 'otra parte') : '';
+  return `<div class="cab">Bloque 5 · 15 minutos</div><h2>Se abre el sobre</h2>
+${S.sellado ? `<table><tr><th></th><th>El sobre</th><th>La pared</th><th>Project</th></tr>
+<tr><td>Semanas</td><td class="n">${esc(a.sem)}</td><td class="n">${semanas??'?'}</td><td class="n">${S.project.fecha?(()=>{const [y,m,d]=S.project.fecha.split('-').map(Number); const dias=Math.round((new Date(y,m-1,d)-INICIO)/DIA); return num(Math.round(dias/7*10)/10)+' (calendario, '+fmt(new Date(y,m-1,d))+')';})():'?'}</td></tr>
+<tr><td>Qué manda</td><td>${esc(a.manda)}</td><td colspan="2">${manda}${a.manda===manda?' <span class="chip">acertaron</span>':' <span class="chip">no era esa</span>'}</td></tr>
+<tr><td>Margen (días hábiles)</td><td class="n">${esc(a.margen)}</td><td class="n" colspan="2">${r?105-r.recibo:'?'} aprox.</td></tr></table>` : '<div class="caja ojo">El sobre no se selló. Vuelvan al bloque 0 si todavía tienen las cifras.</div>'}
+<p>Casi todos los grupos apuestan por el concreto y la quebrada. La respuesta suele estar en otra parte: en un taller a 90 kilómetros de la obra. Buehler, Griffin y Ross midieron en 1994 que los estudiantes que estimaron 34 días para su tesis tardaron 55, y solo el 30 por ciento cumplió su propio pronóstico. La Guía del PMBOK 8 lo llama falacia de planificación.</p>
+<label class="f">Cierre de la bitácora, en tres frases: en qué se equivocó la apuesta, por qué, y qué harían distinto la próxima vez que les pidan un plazo a ojo.</label>
+<textarea id="cierre">${esc(S.cierre||'')}</textarea>`;
+};
+const QUIZ = [
+ {q:'En su cronograma, si la fabricación en taller se demora cuatro días, ¿qué pasa con el recibo del puente?', o:['Se corre cuatro días, porque la fabricación está en la ruta crítica','No pasa nada, porque la fabricación tiene holgura','Se corre dos días, porque la holgura absorbe la mitad'], c:0, x:'Con la lógica de referencia la cadena metálica es la ruta crítica: cada día que se pierde ahí se pierde en el recibo. Compruébenlo con su propia red: si en la de ustedes A6 tiene holgura, la respuesta cambia y eso es lo que deben poder explicar.'},
+ {q:'¿Por qué el curado no se puede cargar en Project como 7 días hábiles?', o:['Porque Project no acepta duraciones de siete días','Porque el concreto cura también los fines de semana y festivos: son días transcurridos (7dt)','Porque el curado no es una actividad sino un hito'], c:1, x:'Un curado de 7d ocuparía nueve o diez días calendario; con 7dt ocupa exactamente una semana. Cuatro días de diferencia en la ruta crítica si hay dos curados en ella.'},
+ {q:'La ruta crítica de su cronograma tiene holgura cero y el contrato tiene margen de quince días. ¿Cuál es la diferencia?', o:['No hay diferencia: son la misma holgura vista de dos formas','La holgura es de las actividades frente al fin del proyecto; el margen es del proyecto frente al plazo del contrato','El margen es lo que sobra después de restar los festivos'], c:1, x:'La ruta crítica siempre tiene holgura cero por definición. El margen contractual es otra cosa: cuánto puede correrse el fin del proyecto antes de incumplir el plazo. Confundirlos es el error más común del bloque.'},
+];
+V.quiz = ()=>`<div class="cab">Bloque 5</div><h2>Tres preguntas</h2><p>Individuales, sin consultar. No se califican: son para que cada uno compruebe qué se le quedó.</p>
+${QUIZ.map((q,i)=>`<div class="caja"><b>${i+1}. ${q.q}</b>${q.o.map((o,j)=>`<button class="opc ${S.quiz[i]===j?(j===q.c?'ok':'mal'):''}" data-q="${i}:${j}">${o}</button>`).join('')}<div class="pequeno" id="qx-${i}">${S.quiz[i]!==undefined?q.x:''}</div></div>`).join('')}`;
+const PARES = [['Holgura total','Tiempo que una actividad puede retrasarse sin mover la fecha de fin del proyecto'],['Ruta crítica','Cadena más larga de la red; sus actividades tienen holgura cero'],['Adelanto (lead)','La sucesora puede empezar antes de que termine la predecesora'],['Retraso (lag)','Espera obligatoria entre el fin de una actividad y el inicio de la siguiente'],['Hito','Evento sin duración que marca un punto verificable del proyecto'],['Línea base del cronograma','Versión aprobada del cronograma contra la que se mide el avance'],['Dependencia discrecional','Secuencia que el equipo elige por preferencia o por recursos, no por lógica física'],['Días transcurridos','Duración que corre en calendario, incluidos fines de semana y festivos']];
+let parSel = null;
+V.emparejar = ()=>{
+  const hechas = S.pares||[];
+  const izq = PARES.map((p,i)=>({i,t:p[0]})); const der = PARES.map((p,i)=>({i,t:p[1]})).sort((a,b)=>((a.i*7+3)%8)-((b.i*7+3)%8));
+  return `<div class="cab">Bloque 5 · extra</div><h2>Emparejar</h2><p>Toque un término y luego su definición. ${hechas.length===PARES.length?'<b>Completo.</b>':''}</p>
+<div class="par"><div>${izq.map(x=>`<div class="ficha ${hechas.includes(x.i)?'hecha':''}" data-par="t:${x.i}">${x.t}</div>`).join('')}</div><div>${der.map(x=>`<div class="ficha ${hechas.includes(x.i)?'hecha':''}" data-par="d:${x.i}">${x.t}</div>`).join('')}</div></div>
+<p class="pequeno" style="margin-top:10px">Y una de orden, de memoria: los cuatro pasos para desarrollar el cronograma según la Guía del PMBOK 8 (impresa, p. 54) son definir las actividades, determinar la secuencia, estimar el esfuerzo y la duración, y ajustar.</p>`;
+};
+V.bitacora = ()=>`<div class="cab">Bloque 5</div><h2>La bitácora</h2>
+<p>La página junta lo que escribieron: la apuesta, la EDT, la lógica, la ruta crítica, PERT, el cotejo, las tarjetas con sus predicciones y decisiones, y el cierre. Descárguenla, revísenla, completen lo que falte (máximo dos páginas) y súbanla a Moodle con el .mpp, el Gantt en PDF y la foto de la pared.</p>
+<div class="fila"><button class="btn pri" id="descargar">Descargar la bitácora (.txt)</button><button class="btn" id="imprimir">Imprimir esta página</button><button class="btn" id="borrar">Borrar todo y empezar de nuevo</button></div>
+<pre id="bit-prev" class="mono" style="white-space:pre-wrap;font-size:12px;background:var(--paper);border:1px solid var(--card-border);border-radius:10px;padding:12px;max-height:420px;overflow:auto"></pre>`;
+
+/* ============================================================ red SVG */
+function dibujarRed(L, r){
+  const ord = orden(L); const nivel = {}; for(const id of ord){ let n=0; for(const p of (L[id]||[])) n = Math.max(n, (nivel[p.id]??0)+1); nivel[id]=n; }
+  const cols = {}; ord.forEach(id=>{ (cols[nivel[id]] = cols[nivel[id]]||[]).push(id); });
+  const W=150, Hh=64, bw=126, bh=48; const nCols = Object.keys(cols).length; const maxRows = Math.max(...Object.values(cols).map(c=>c.length));
+  const pos = {}; Object.keys(cols).forEach(k=>{ cols[k].forEach((id,j)=>{ pos[id] = {x: 24 + k*W, y: 24 + j*Hh}; }); });
+  const fill = {verde:'#DCE5D4', azul:'#D6E1E6', amar:'#F3E6C4', hito:'#F0D3C9'};
+  const CR = new Set(r.rc.concat(r.H['A1']===0?['A1']:[]));
+  let s = `<svg width="${24+nCols*W+20}" height="${24+maxRows*Hh+20}" viewBox="0 0 ${24+nCols*W+20} ${24+maxRows*Hh+20}" font-family="IBM Plex Mono, monospace"><defs><marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#8a8479"/></marker><marker id="flc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#9C4A32"/></marker></defs>`;
+  for(const id of ord) for(const p of (L[id]||[])){ const a=pos[p.id], b=pos[id]; if(!a||!b) continue; const crit = CR.has(id) && CR.has(p.id) && (p.tipo==='SS' ? r.ES[id]===r.ES[p.id]+p.lag : r.ES[id]===r.EF[p.id]+p.lag);
+    s += `<path d="M${a.x+bw} ${a.y+bh/2} C ${a.x+bw+30} ${a.y+bh/2}, ${b.x-30} ${b.y+bh/2}, ${b.x} ${b.y+bh/2}" fill="none" stroke="${crit?'#9C4A32':'#8a8479'}" stroke-width="${crit?2.4:1.2}" marker-end="url(#${crit?'flc':'fl'})" ${p.tipo==='SS'?'stroke-dasharray="4 3"':''}/>`; }
+  for(const id of ord){ const a = ACT[IDX[id]], q = pos[id]; const crit = CR.has(id);
+    s += `<g><rect x="${q.x}" y="${q.y}" width="${bw}" height="${bh}" rx="7" fill="${fill[filaClase(a)]}" stroke="${crit?'#9C4A32':'#B9AE9B'}" stroke-width="${crit?2.5:1}"/><text x="${q.x+7}" y="${q.y+15}" font-size="11" font-weight="600" fill="#2E3226">${id} <tspan font-weight="400" fill="#5E6350">${r.dur[id]}d</tspan></text><text x="${q.x+7}" y="${q.y+29}" font-size="9.5" fill="#2E3226">${esc(a.c.length>22?a.c.slice(0,21)+'…':a.c)}</text><text x="${q.x+7}" y="${q.y+42}" font-size="9.5" fill="#5E6350">${r.ES[id]}·${r.EF[id]}  H ${r.H[id]}</text></g>`; }
+  return s + '</svg>';
+}
+
+/* ============================================================ render */
+function render(){
+  const id = SLIDES[cur]; if(!S.visto.includes(id)) { S.visto.push(id); guardar(); }
+  location.hash = id;
+  const esc_ = document.getElementById('escena');
+  esc_.innerHTML = `<div class="tarj" id="tarj">${V[id]()}</div><div class="pie-nav"><button class="btn" id="ant" ${cur===0?'disabled':''}>← Anterior</button><span class="paso">${cur+1} · ${SLIDES.length} · ${TIT[id]}</span><button class="btn pri" id="sig" ${cur===SLIDES.length-1?'disabled':''}>Siguiente →</button></div>`;
+  esc_.querySelectorAll('.tarj table').forEach(t=>{ const w=document.createElement('div'); w.className='tw'; t.parentNode.insertBefore(w,t); w.appendChild(t); });
+  esc_.scrollTop = 0;
+  document.getElementById('ant').onclick = ()=>{ cur--; render(); };
+  document.getElementById('sig').onclick = ()=>{ cur++; render(); };
+  const pct = Math.round(S.visto.length/SLIDES.length*100); document.getElementById('pct').textContent = pct+' %'; document.getElementById('barra').style.width = pct+'%';
+  renderIndice(); enganchar(id);
+}
+function renderIndice(){
+  const n = document.getElementById('indice'); let html = '';
+  SEC.forEach(sec=>{ html += `<h2>${sec.t}</h2>`; sec.s.forEach(id=>{ const i = SLIDES.indexOf(id); html += `<button class="${i===cur?'activo':''} ${S.visto.includes(id)?'visto':''}" data-go="${i}"><span class="pt">${S.visto.includes(id)?'✓':''}</span><span>${TIT[id]}</span></button>`; }); });
+  n.innerHTML = html; n.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ cur=+b.dataset.go; render(); if(window.innerWidth<760) n.classList.add('oculto'); });
+}
+function enganchar(id){
+  const $ = s=>document.querySelector(s), $$ = s=>[...document.querySelectorAll(s)];
+  if(id==='portada'){ $('#grupo').oninput = e=>{ S.grupo=e.target.value; guardar(); }; }
+  if(id==='apuesta' && !S.sellado){ $('#sellar').onclick = ()=>{ const sem=$('#ap-sem').value, manda=$('#ap-manda').value, margen=$('#ap-margen').value; if(!sem||!manda||margen===''){ alert('Faltan datos en el sobre.'); return; } if(!confirm('¿Sellar el sobre? Después no se puede cambiar.')) return; S.apuesta={sem,manda,margen}; S.sellado=true; guardar(); render(); }; }
+  if(id==='edt'){ $('#p14').oninput = e=>{S.edt.p14=e.target.value; guardar();}; $('#p15').oninput = e=>{S.edt.p15=e.target.value; guardar();};
+    $('#edt-check').onclick = ()=>{ const out=[]; for(const [k,t] of [['1.4',S.edt.p14],['1.5',S.edt.p15]]){ const lineas = t.split('\n').map(x=>x.trim()).filter(Boolean); if(lineas.length<2) out.push(`<div class="caja mal">Rama ${k}: hacen falta al menos dos paquetes (una rama con un solo hijo no se descompone).</div>`); const verbos = lineas.filter(l=>/^\s*(\d+(\.\d+)*\s*)?(fundir|montar|pintar|construir|instalar|excavar|fabricar|transportar|comprar|hacer|colocar|armar|ejecutar|realizar)\b/i.test(l)); if(verbos.length) out.push(`<div class="caja ojo">Rama ${k}: hay paquetes escritos como actividad (verbo): ${verbos.map(esc).join(' · ')}. Un paquete es un sustantivo que se recibe: «estructura fabricada», «tablero», «acceso izquierdo».</div>`); if(lineas.length>=2 && !verbos.length) out.push(`<div class="caja ok">Rama ${k}: ${lineas.length} paquetes, en sustantivo. Ahora comprueben la regla del 100 por ciento colgando las actividades en la pantalla siguiente.</div>`); } $('#edt-out').innerHTML = out.join(''); }; }
+  if(id==='colgar'){ $$('[data-colgar]').forEach(s=>s.onchange=e=>{ S.colgar[e.target.dataset.colgar]=e.target.value; guardar(); });
+    $('#colgar-check').onclick = ()=>{ let ok=0, mal=[], vacio=0; ACT.forEach(a=>{ const v=S.colgar[a.id]; if(!v) vacio++; else if(v===a.rama) ok++; else mal.push(a.id); }); $('#colgar-out').innerHTML = `<div class="caja ${mal.length||vacio?'ojo':'ok'}">${ok} bien colgadas · ${mal.length} en otra rama${mal.length?` (${mal.join(', ')})`:''} · ${vacio} sin rama.${mal.includes('A25')?' Ojo con A25: la socialización es gestión social, y eso es gerencia del proyecto.':''}${mal.includes('A8')?' El permiso de la CAR es un preliminar del contrato, aunque lo tramite la entidad.':''}${mal.includes('A24')?' La liquidación es gerencia, no entrega.':''}</div>`; }; }
+  if(id==='hitos'){ $('#hito4').oninput=e=>{S.hito4=e.target.value; guardar();}; $('#hito-check').onclick=()=>{ const t=S.hito4.trim(); const bueno=/(montad|curad|estructura en obra|estribos? terminad|tablero|prueba de carga|acceso|entrega parcial|acta parcial)/i.test(t); const verbo=/^(terminar|montar|comprar|fundir|hacer)/i.test(t); $('#hito-out').innerHTML = !t?'<div class="caja ojo">Escriban el hito.</div>':verbo?'<div class="caja mal">Está escrito como actividad. Un hito es un estado: «estructura montada», no «montar la estructura».</div>':bueno?'<div class="caja ok">Sirve: es un estado verificable que le importa al cliente o a la interventoría.</div>':'<div class="caja ojo">Puede servir. Pregúntense: ¿alguien lo firma o lo fotografía? ¿Coincide con un pago o con un cambio de fase?</div>'; }; }
+  if(id==='logica'){ $$('[data-pred]').forEach(i=>i.oninput=e=>{ S.logica[e.target.dataset.pred]=e.target.value; guardar(); });
+    $('#logica-check').onclick = ()=>{ const out=[]; const L={}; let errs=[]; ACT.forEach(a=>{ const p=parsePreds(S.logica[a.id]||''); L[a.id]=p.preds; if(p.errs.length) errs.push(a.id+': '+p.errs.join(' ')); });
+      if(errs.length) out.push(`<div class="caja mal">No entiendo estas predecesoras: ${errs.map(esc).join(' · ')}</div>`);
+      if(!orden(L)) out.push('<div class="caja mal">La red se muerde la cola: hay un ciclo. Ninguna actividad puede depender, directa o indirectamente, de sí misma.</div>');
+      const sinPred = ACT.filter(a=>a.id!=='A1' && !L[a.id].length).map(a=>a.id); if(sinPred.length) out.push(`<div class="caja ojo">Sin predecesora: ${sinPred.join(', ')}. Toda actividad, salvo el acta de inicio, se conecta al menos a una anterior.</div>`);
+      // hechos: se admite dependencia indirecta (a través de otras)
+      function llega(desde, hasta, vis={}){ if(desde===hasta) return true; if(vis[desde]) return false; vis[desde]=true; return (L[desde]||[]).some(p=>llega(p.id,hasta,vis)); }
+      const viol = HECHOS.filter(([a,p])=>!llega(a,p)).map(([a,p,why])=>`<li><b>${a}</b> debería venir después de <b>${p}</b>: ${why}.</li>`);
+      if(viol.length) out.push(`<div class="caja mal"><div class="t">Hechos del catálogo que su lógica no respeta</div><ul>${viol.join('')}</ul></div>`);
+      const dis = (L['A20']||[]).some(p=>p.id==='A19'); out.push(`<div class="caja info">${dis?'Marcaron el acceso derecho después del izquierdo: dependencia discrecional por la cuadrilla única. Anótenla en la bitácora como tal.':'Los dos accesos quedaron en paralelo: eso exige dos cuadrillas. Si es lo que quieren, hay que justificarlo y costarlo en la bitácora.'}</div>`);
+      if(!errs.length && orden(L) && !sinPred.length && !viol.length) out.push('<div class="caja ok">La lógica respeta los hechos de la obra y la red cierra. Pasen al recorrido de ida y vuelta.</div>');
+      $('#logica-out').innerHTML = out.join(''); }; }
+  if(id==='idavuelta'){ $$('[data-cel]').forEach(i=>i.oninput=e=>{ const [a,k]=e.target.dataset.cel.split(':'); S.pared[a]=S.pared[a]||{}; S.pared[a][k]=e.target.value; guardar(); });
+    const comprobar = (revelar)=>{ const r = cpm(logicaActual()); let mal=0, vac=0; $$('[data-cel]').forEach(i=>{ const [a,k]=i.dataset.cel.split(':'); const v=i.value.trim(); i.classList.remove('ok','mal'); if(revelar){ i.value=r[k][a]; S.pared[a]=S.pared[a]||{}; S.pared[a][k]=r[k][a]; return; } if(v===''){ vac++; return; } if(+v===r[k][a]) i.classList.add('ok'); else { i.classList.add('mal'); mal++; } }); if(revelar){ S.revelado=true; guardar(); $('#pared-res').textContent='Solución cargada. Queda anotado en la bitácora.'; return; } $('#pared-res').textContent = `${mal} celdas no cuadran · ${vac} vacías`; $('#pared-out').innerHTML = mal===0&&vac===0?`<div class="caja ok">Todo cuadra con su lógica. Recibo en el día hábil ${r.recibo}; ruta crítica ${r.rc.join(' → ')}.</div>`:`<div class="caja ojo">Revisen primero las celdas rojas de ES y EF, porque los errores de ida se arrastran a la vuelta. Pista: la holgura de una actividad nunca es menor que la de la cadena a la que pertenece.</div>`; };
+    $('#pared-check').onclick=()=>comprobar(false); $('#pared-rev').onclick=()=>{ if(confirm('Esto escribe la solución de su lógica en la tabla y queda anotado en la bitácora. Úsenlo solo después de haber intentado. ¿Seguir?')) comprobar(true); }; }
+  if(id==='pert'){ $$('[data-pert]').forEach(i=>i.oninput=e=>{ S.pert[e.target.dataset.pert]=e.target.value; guardar(); });
+    $('#pert-check').onclick=()=>{ Object.keys(PERT).forEach(k=>{ const [o,m,p]=PERT[k]; const te=(o+4*m+p)/6, sg=(p-o)/6; const a=+S.pert[k+':te'], b=+S.pert[k+':sg']; $('#pert-'+k).innerHTML = (Math.abs(a-te)<0.06?'t<sub>e</sub> ✓':`t<sub>e</sub> no cuadra`)+' · '+(Math.abs(b-sg)<0.06?'σ ✓':'σ no cuadra'); }); };
+    $('#pert-aplicar').onclick=()=>{ const L=logicaActual(); const b=cpm(L); const dur={}; Object.keys(PERT).forEach(k=>{ const [o,m,p]=PERT[k]; dur[k]=(o+4*m+p)/6; }); const r=cpm(L,{dur}); $('#pert-out').innerHTML=`<div class="caja info">Con las duraciones esperadas el recibo pasa del día ${b.recibo} al ${num(Math.round(r.recibo*10)/10)}. Ruta crítica ${r.rc.join()===b.rc.join()?'igual':'distinta'}: ${r.rc.join(' → ')}.<br>Para la bitácora: ¿cuáles de las tres inciertas están en la ruta crítica? Solo esas mueven la fecha; las otras consumen holgura.</div>`; }; }
+  if(id==='hoja'){ $$('[data-check]').forEach(c=>c.onchange=e=>{ const i=+e.target.dataset.check; S.project.checks = S.project.checks||[]; if(e.target.checked){ if(!S.project.checks.includes(i)) S.project.checks.push(i);} else S.project.checks=S.project.checks.filter(x=>x!==i); guardar(); }); }
+  if(id==='cotejo'){ $('#fecha-pj').onchange=e=>{ S.project.fecha=e.target.value; guardar(); };
+    $('#cotejar').onclick=()=>{ const L=logicaActual(); const F=fechas(L); const r=cpm(L); const v=$('#fecha-pj').value; if(!v){ $('#cotejo-out').innerHTML='<div class="caja ojo">Escriban la fecha que dio Project.</div>'; return; } const [y,m,d]=v.split('-').map(Number); const dif = Math.round((new Date(y,m-1,d) - fechaIdx(F.recibo))/DIA);
+      const fest = FESTIVOS.filter(f=>{ const [a,b,c]=f.split('-').map(Number); const t=new Date(a,b-1,c); return t>=INICIO && t<=fechaIdx(F.recibo) && t.getDay()>0 && t.getDay()<6; }).length;
+      $('#cotejo-out').innerHTML = `<div class="caja ${dif===0?'ok':'ojo'}"><div class="t">Resultado</div>Con su lógica, calendario colombiano, curados en días transcurridos y la restricción de la CAR como fecha, el recibo debería caer el <b>${fmtIdx(F.recibo)}</b>. Project dijo ${fmt(new Date(y,m-1,d))}: ${dif===0?'cuadra.':`<b>${Math.abs(dif)} días calendario de diferencia</b> (${dif>0?'Project más tarde':'Project más temprano'}).`}<br><span class="pequeno">En ese tramo hay ${fest} festivos entre semana. La pared decía día hábil ${r.recibo}. Si la diferencia no se explica con festivos, curados en dt o la restricción de fecha, revisen las predecesoras en Project una por una.</span></div>`; }; }
+  if(id==='tarjetas'){ $$('[data-ev]').forEach(c=>c.onclick=()=>{ const e=c.dataset.ev; if(S.ev.aplic.length){ alert('Ya aplicaron tarjetas; para cambiarlas hay que borrar el bloque 4.'); return; } if(S.ev.sel.includes(e)) S.ev.sel=S.ev.sel.filter(x=>x!==e); else if(S.ev.sel.length<2) S.ev.sel.push(e); guardar(); render(); });
+    $('#sortear').onclick=()=>{ if(S.ev.aplic.length) return; const ids=EVENTOS.map(e=>e.id); S.ev.sel=[]; while(S.ev.sel.length<2){ const x=ids[Math.floor(Math.random()*ids.length)]; if(!S.ev.sel.includes(x)) S.ev.sel.push(x); } guardar(); render(); }; }
+  if(id==='aplicar'){ $$('[data-predtxt]').forEach(t=>t.oninput=e=>{ S.ev.pred[e.target.dataset.predtxt]=e.target.value; guardar(); });
+    $$('[data-aplicar]').forEach(b=>b.onclick=()=>{ const e=b.dataset.aplicar; if((S.ev.pred[e]||'').trim().length<40){ alert('Primero la predicción, por escrito y con alguna cifra. Sin apuesta no hay corrección.'); return; } const k = S.ev.sel.indexOf(e); if(k===1 && !S.ev.aplic.includes(S.ev.sel[0])){ alert('La segunda tarjeta se aplica sobre el resultado de la primera.'); return; } S.ev.aplic.push(e); guardar(); render(); });
+    $$('[data-comp]').forEach(c=>c.onchange=e=>{ S.ev.comp=S.ev.comp||[]; const v=e.target.dataset.comp; if(e.target.checked){ if(!S.ev.comp.includes(v)) S.ev.comp.push(v);} else S.ev.comp=S.ev.comp.filter(x=>x!==v); guardar(); render(); });
+    $$('[data-dec]').forEach(t=>t.oninput=e=>{ S.ev.dec=S.ev.dec||{}; S.ev.dec[e.target.dataset.dec]=e.target.value; guardar(); }); }
+  if(id==='sobre'){ $('#cierre').oninput=e=>{ S.cierre=e.target.value; guardar(); }; }
+  if(id==='quiz'){ $$('[data-q]').forEach(b=>b.onclick=()=>{ const [i,j]=b.dataset.q.split(':').map(Number); if(S.quiz[i]!==undefined) return; S.quiz[i]=j; guardar(); render(); }); }
+  if(id==='emparejar'){ $$('[data-par]').forEach(f=>f.onclick=()=>{ if(f.classList.contains('hecha')) return; const [lado,i]=f.dataset.par.split(':'); if(!parSel){ parSel={lado,i,el:f}; f.classList.add('sel'); return; } if(parSel.lado===lado){ parSel.el.classList.remove('sel'); parSel={lado,i,el:f}; f.classList.add('sel'); return; } if(parSel.i===i){ S.pares=S.pares||[]; S.pares.push(+i); guardar(); parSel=null; render(); } else { f.classList.add('mal'); setTimeout(()=>{ f.classList.remove('mal'); parSel.el.classList.remove('sel'); parSel=null; }, 500); } }); }
+  if(id==='bitacora'){ const txt = bitacora(); $('#bit-prev').textContent = txt; $('#descargar').onclick=()=>{ const b=new Blob([txt],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`Bitacora taller 1 - ${(S.grupo||'grupo').replace(/[^\w ]/g,'')}.txt`; a.click(); }; $('#imprimir').onclick=()=>window.print(); $('#borrar').onclick=()=>{ if(confirm('¿Borrar todo el avance de este navegador?')){ try{ localStorage.removeItem(KEY); }catch(e){} location.hash=''; location.reload(); } }; }
+}
+function bitacora(){
+  const L=logicaActual(); const r=cpm(L); const F=r?fechas(L):null; const a=S.apuesta;
+  const li=[]; li.push('BITÁCORA DE DECISIONES · TALLER 1 · CINCO MESES EN UNA PARED'); li.push('Grupo: '+(S.grupo||'(sin nombre)')+' · Generada: '+new Date().toLocaleString('es-CO')); li.push('');
+  li.push('1. APUESTA (sobre): '+(S.sellado?`${a.sem} semanas · manda: ${a.manda} · margen ${a.margen} días hábiles`:'no se selló')); li.push('');
+  li.push('2. EDT · rama 1.4:'); li.push((S.edt.p14||'(vacío)')); li.push('   rama 1.5:'); li.push((S.edt.p15||'(vacío)')); li.push('   cuarto hito: '+(S.hito4||'(vacío)')); li.push('');
+  li.push('3. LÓGICA (predecesoras):'); ACT.forEach(x=>li.push(`   ${x.id} ${x.c}: ${S.logica[x.id]||'ninguna'}`)); li.push('   Dependencias discrecionales y justificación: (completar)'); li.push('');
+  if(r){ li.push(`4. RUTA CRÍTICA A MANO: ${r.rc.join(' > ')}`); li.push(`   Recibo en el día hábil ${r.recibo}. Holgura de la cadena de concreto (A12): ${r.H['A12']} días. Holgura de accesos (A20): ${r.H['A20']} días.`); }
+  else li.push('4. RUTA CRÍTICA: la red no cierra (ciclo).'); if(S.revelado) li.push('   (La página reveló la solución de ida y vuelta para esta lógica.)'); li.push('');
+  li.push('5. PERT: '+Object.keys(PERT).map(k=>`${k} te=${S.pert[k+':te']||'?'} σ=${S.pert[k+':sg']||'?'}`).join(' · ')); li.push('   ¿Cambia la ruta crítica con las esperadas? (completar)'); li.push('');
+  li.push(`6. COTEJO: fecha esperada con calendario ${F?fmtIdx(F.recibo):'?'} · fecha de Project ${S.project.fecha||'(no registrada)'} · explicación día por día: (completar)`); li.push('');
+  li.push('7. EVENTOS:'); S.ev.sel.forEach(id=>{ const e=EVENTOS.find(x=>x.id===id); li.push(`   ${e.id} ${e.t}`); li.push('   Predicción: '+(S.ev.pred[id]||'(vacía)')); li.push('   Decisión: '+((S.ev.dec||{})[id]||(e.ap.meta?'compresión escogida: '+((S.ev.comp||[]).map(c=>COMPRESION.find(x=>x.id===c).t).join('; ')||'ninguna'):'(vacía)'))); }); li.push('');
+  li.push('8. CIERRE: '+(S.cierre||'(vacío)')); li.push('');
+  li.push('9. PREGUNTAS DE CIERRE: '+QUIZ.map((q,i)=>S.quiz[i]===undefined?'sin responder':(S.quiz[i]===q.c?'bien':'mal')).join(' · '));
+  return li.join('\n');
+}
+document.getElementById('menu').onclick=()=>document.getElementById('indice').classList.toggle('oculto');
+if(window.innerWidth<760) document.getElementById('indice').classList.add('oculto');
+window.addEventListener('hashchange', ()=>{ const i = SLIDES.indexOf(location.hash.slice(1)); if(i>=0 && i!==cur){ cur=i; render(); } });
+render();
+</script>
+</body>
+</html>
